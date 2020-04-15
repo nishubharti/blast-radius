@@ -1,6 +1,6 @@
 # Blast Radius
 
-[![CircleCI](https://circleci.com/gh/28mm/blast-radius/tree/master.svg?style=svg)](https://circleci.com/gh/28mm/blast-radius/tree/master)
+
 [![PyPI version](https://badge.fury.io/py/BlastRadius.svg)](https://badge.fury.io/py/BlastRadius)
 
 [terraform]: https://www.terraform.io/
@@ -22,6 +22,7 @@ Use _Blast Radius_ to:
 
 * [Graphviz](https://www.graphviz.org/)
 * [Python](https://www.python.org/) 3.7 or newer
+* [Go](https://golang.org/) 1.12.16 or newer
 
 > __Note:__ For macOS you can `brew install graphviz`
 
@@ -149,3 +150,83 @@ These examples are drawn primarily from the `examples/` directory distributed
 with various *Terraform* providers, and aren't necessarily ideal. Additional
 examples, particularly demonstrations of best-practices, or of multi-cloud
 configurations strongly desired.
+
+# Blast Radius Extended
+
+It is an extension of existing blastradius tool
+
+This extended version of Blast radius will give you plan as well as apply information of terraform files with graphical visualization.
+
+```
+Note:-This extended blast-radius supports only terraform version 12
+```
+
+## Quickstart
+
+First building blast-radius.
+* Make sure you have all the prerequisites
+* create wheel file of this repo or you can download the binary
+```
+python3 setup.py sdist bdist_wheel
+```
+
+* install the wheel file that got created inside dist folder 
+```
+easy_install dist/blastradius-0.1.25.0-py3-none-any.whl
+```
+
+
+After blast radius is installed just go to the *Terraform* directory.you must have initiliazed and planned your terraform files and store the plan information into json files.Follow these steps
+
+```
+terraform init
+```
+
+```
+terraform plan --out tfplan.binary
+```
+
+```
+terraform show -json tfplan.binary > tfplan.json
+```
+
+if you want to see apply information also run (this step is optional)
+
+```
+terraform apply 
+```
+
+now just run the way you were running blast-radius inside terraform directory
+
+```sh
+blast-radius --serve /path/to/terraform/directory
+```
+
+The diagram will look like the below one
+
+![alt text](image/imag1.png)
+
+you will see tooltips options 
+* blast-radius
+* blast-radius-extended
+
+## blast-radius
+
+It is the existing blast-radius graph visualization which is the same that is in the above picture 
+
+## blast-radius-extended 
+
+This graph is enrich in informations of terraform files information.It will look like the below one  
+
+![alt text](image/imag2.png)
+
+This graph is enrich of more information about the resources inside the terraform files.We have onclick action on each existing tables rows.It will open a side div and displays all the information there.
+
+![alt text](image/imag3.png)
+
+
+
+
+
+
+
