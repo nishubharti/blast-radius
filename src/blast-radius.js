@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import d3tip from 'd3-tip';
+import d3Tip from 'd3-tip';
 import { resource_groups } from './categories';
 import svgPanZoom from 'svg-pan-zoom';
 import $ from 'jquery';
@@ -190,7 +190,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             // setup tooltips
             var tip;
             if (!disableTooltip) {
-                tip = d3tip()
+                tip = d3Tip()
                     .attr('class', class_selector.slice(1, class_selector.length) + '-d3-tip d3-tip')
                     .offset([-10, 0])
                     .html(render_tooltip);
@@ -360,26 +360,26 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             // FIXME: but don't seem to be necessary for display
             var node_mousedown = function (d, x, y, z, no_tip_p) {
                 if (sticky_node == d && click_count == 1) {
-                    tip && tip.hide(d);
+                    tip && tip.hide(d, this);
                     highlight(d, true, true);
                     click_count += 1;
                 }
                 else if (sticky_node == d && click_count == 2) {
                     unhighlight(d);
-                    tip && tip.hide(d);
+                    tip && tip.hide(d, this);
                     sticky_node = null;
                     click_count = 0;
                 }
                 else {
                     if (sticky_node) {
                         unhighlight(sticky_node);
-                        tip && tip.hide(sticky_node);
+                        tip && tip.hide(sticky_node, this);
                     }
                     sticky_node = d;
                     click_count = 1;
                     highlight(d, true, false);
                     if (no_tip_p === undefined) {
-                        tip && tip.show(d)
+                        tip && tip.show(d, this)
                             .direction(tipdir(d))
                             .offset(tipoff(d));
                     }
@@ -387,11 +387,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             var node_mouseleave = function (d) {
-                tip && tip.hide(d);
+                tip && tip.hide(d, this);
             }
 
             var node_mouseenter = function (d) {
-                tip && tip.show(d)
+                tip && tip.show(d, this)
                     .direction(tipdir(d))
                     .offset(tipoff(d));
             }
