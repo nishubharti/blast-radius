@@ -2,7 +2,7 @@
   "name": "28mm-blastradius",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/index.js",
+  "main": "./npm/src/index.js",
   "scripts": {
     "clean": "rm -rf node_modules package-lock.json && npm i",
     "build": "webpack"
