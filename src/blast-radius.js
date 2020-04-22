@@ -536,13 +536,14 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     ev.preventDefault();
                     panzoom && panzoom.zoomIn();
                 }
-                zin_btn.addEventListener('click', handle_zin);
+
+                zin_btn && zin_btn.addEventListener('click', handle_zin);
 
                 var handle_zout = function (ev) {
                     ev.preventDefault();
                     panzoom && panzoom.zoomOut();
                 }
-                zout_btn.addEventListener('click', handle_zout);
+                zout_btn && zout_btn.addEventListener('click', handle_zout);
 
                 var handle_refocus = function () {
                     if (sticky_node) {
@@ -560,9 +561,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 }
 
                 // this feature is disabled for embedded images on static sites...
-                if (refocus_btn) {
-                    refocus_btn.addEventListener('click', handle_refocus);
-                }
+                refocus_btn && refocus_btn.addEventListener('click', handle_refocus);
 
                 var handle_download = function () {
                     // svg extraction and download as data url borrowed from
@@ -576,13 +575,14 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     dl.setAttribute("download", "blast-radius.svg");
                     dl.click();
                 }
-                download_btn.addEventListener('click', handle_download);
+
+                download_btn && download_btn.addEventListener('click', handle_download);
 
                 var clear_listeners = function () {
-                    zin_btn.removeEventListener('click', handle_zin);
-                    zout_btn.removeEventListener('click', handle_zout);
-                    refocus_btn.removeEventListener('click', handle_refocus);
-                    download_btn.removeEventListener('click', handle_download);
+                    zin_btn && zin_btn.removeEventListener('click', handle_zin);
+                    zout_btn && zout_btn.removeEventListener('click', handle_zout);
+                    refocus_btn && refocus_btn.removeEventListener('click', handle_refocus);
+                    download_btn && download_btn.removeEventListener('click', handle_download);
                     panzoom = null;
 
                     //
