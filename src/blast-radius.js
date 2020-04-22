@@ -103,7 +103,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     // every time the a subgraph is selected, the color assignments would differ and
     // become confusing.
     var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
-    var enableSvgZoom = state['enableSvgZoom'] ? state['enableSvgZoom'] : true;
+    var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
+    var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
     state['color'] = color;
 
     //console.log(state);
@@ -187,11 +188,14 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             // setup tooltips
-            var tip = d3tip()
-                .attr('class', class_selector.slice(1, class_selector.length) + '-d3-tip d3-tip')
-                .offset([-10, 0])
-                .html(render_tooltip);
-            svg.call(tip);
+            var tip;
+            if (!disableTooltip) {
+                tip = d3tip()
+                    .attr('class', class_selector.slice(1, class_selector.length) + '-d3-tip d3-tip')
+                    .offset([-10, 0])
+                    .html(render_tooltip);
+                svg.call(tip);
+            }
 
             // returns <div> element representinga  node's title and module namespace.
             var title_html = function (d) {
@@ -356,26 +360,26 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             // FIXME: but don't seem to be necessary for display
             var node_mousedown = function (d, x, y, z, no_tip_p) {
                 if (sticky_node == d && click_count == 1) {
-                    tip.hide(d);
+                    tip && tip.hide(d);
                     highlight(d, true, true);
                     click_count += 1;
                 }
                 else if (sticky_node == d && click_count == 2) {
                     unhighlight(d);
-                    tip.hide(d);
+                    tip && tip.hide(d);
                     sticky_node = null;
                     click_count = 0;
                 }
                 else {
                     if (sticky_node) {
                         unhighlight(sticky_node);
-                        tip.hide(sticky_node);
+                        tip && tip.hide(sticky_node);
                     }
                     sticky_node = d;
                     click_count = 1;
                     highlight(d, true, false);
                     if (no_tip_p === undefined) {
-                        tip.show(d)
+                        tip && tip.show(d)
                             .direction(tipdir(d))
                             .offset(tipoff(d));
                     }
@@ -383,11 +387,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             var node_mouseleave = function (d) {
-                tip.hide(d);
+                tip && tip.hide(d);
             }
 
             var node_mouseenter = function (d) {
-                tip.show(d)
+                tip && tip.show(d)
                     .direction(tipdir(d))
                     .offset(tipoff(d));
             }
@@ -521,7 +525,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var svg_el = document.querySelector(selector + ' svg');
                 var panzoom;
 
-                if (enableSvgZoom) {
+                if (!disableSvgZoom) {
                     panzoom = svgPanZoom(svg_el).disableDblClickZoom();
                 }
 
@@ -536,13 +540,14 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     ev.preventDefault();
                     panzoom && panzoom.zoomIn();
                 }
-                zin_btn.addEventListener('click', handle_zin);
+
+                zin_btn && zin_btn.addEventListener('click', handle_zin);
 
                 var handle_zout = function (ev) {
                     ev.preventDefault();
                     panzoom && panzoom.zoomOut();
                 }
-                zout_btn.addEventListener('click', handle_zout);
+                zout_btn && zout_btn.addEventListener('click', handle_zout);
 
                 var handle_refocus = function () {
                     if (sticky_node) {
@@ -560,9 +565,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 }
 
                 // this feature is disabled for embedded images on static sites...
-                if (refocus_btn) {
-                    refocus_btn.addEventListener('click', handle_refocus);
-                }
+                refocus_btn && refocus_btn.addEventListener('click', handle_refocus);
 
                 var handle_download = function () {
                     // svg extraction and download as data url borrowed from
@@ -576,17 +579,18 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     dl.setAttribute("download", "blast-radius.svg");
                     dl.click();
                 }
-                download_btn.addEventListener('click', handle_download);
+
+                download_btn && download_btn.addEventListener('click', handle_download);
 
                 var clear_listeners = function () {
-                    zin_btn.removeEventListener('click', handle_zin);
-                    zout_btn.removeEventListener('click', handle_zout);
-                    refocus_btn.removeEventListener('click', handle_refocus);
-                    download_btn.removeEventListener('click', handle_download);
+                    zin_btn && zin_btn.removeEventListener('click', handle_zin);
+                    zout_btn && zout_btn.removeEventListener('click', handle_zout);
+                    refocus_btn && refocus_btn.removeEventListener('click', handle_refocus);
+                    download_btn && download_btn.removeEventListener('click', handle_download);
                     panzoom = null;
 
                     //
-                    tip.hide();
+                    tip && tip.hide();
                 }
 
                 var render_searchbox_node = function (d) {
