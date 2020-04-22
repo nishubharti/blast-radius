@@ -102,7 +102,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     // color assignments (resource_type : rgb) are stateful. If we use a new palette
     // every time the a subgraph is selected, the color assignments would differ and
     // become confusing.
-    var color = (state['color'] ? state['color'] : d3.scaleOrdinal(d3['schemeCategory20']));
+    var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
+    var enableSvgZoom = state['enableSvgZoom'] ? state['enableSvgZoom'] : true;
     state['color'] = color;
 
     //console.log(state);
@@ -518,24 +519,28 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var refocus_btn = document.querySelector(selector + '-refocus');
                 var download_btn = document.querySelector(selector + '-download')
                 var svg_el = document.querySelector(selector + ' svg');
-                var panzoom = svgPanZoom(svg_el).disableDblClickZoom();
+                var panzoom;
+
+                if (enableSvgZoom) {
+                    panzoom = svgPanZoom(svg_el).disableDblClickZoom();
+                }
 
                 console.log('bang');
                 console.log(state);
                 if (state['no_scroll_zoom'] == true) {
                     console.log('bang');
-                    panzoom.disableMouseWheelZoom();
+                    panzoom && panzoom.disableMouseWheelZoom();
                 }
 
                 var handle_zin = function (ev) {
                     ev.preventDefault();
-                    panzoom.zoomIn();
+                    panzoom && panzoom.zoomIn();
                 }
                 zin_btn.addEventListener('click', handle_zin);
 
                 var handle_zout = function (ev) {
                     ev.preventDefault();
-                    panzoom.zoomOut();
+                    panzoom && panzoom.zoomOut();
                 }
                 zout_btn.addEventListener('click', handle_zout);
 
