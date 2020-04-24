@@ -104,8 +104,6 @@ blastradius = function (selector, svg_url, json_url, br_state) {
     // be able to manipulate x.svg with d3.js, or other DOM fns. 
     d3.xml(svg_url, function (error, xml) {
 
-        d3.select(selector).selectAll("svg").remove(); 
-        
         container.node()
             .appendChild(document.importNode(xml.documentElement, true));
 
@@ -573,6 +571,8 @@ blastradius = function (selector, svg_url, json_url, br_state) {
                     refocus_btn.removeEventListener('click', handle_refocus);
                     download_btn.removeEventListener('click', handle_download);
                     panzoom = null;
+
+                    //
                     tip.hide();
                 }
 
