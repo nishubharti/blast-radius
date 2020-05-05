@@ -113,7 +113,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     // of our selector. If added as <img src="x.svg">, we wouldn't
     // be able to manipulate x.svg with d3.js, or other DOM fns. 
     d3.xml(svg_url, function (error, xml) {
-
+        d3.select(selector).selectAll("svg").remove();
+        
         container.node()
             .appendChild(document.importNode(xml.documentElement, true));
 
@@ -261,6 +262,38 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     }
                 }
                 return children.join('');
+            }
+
+            var tfstate_html = function (d) {
+                var title = "tf state info"
+                var ttip = '';
+                ttip += title_html(d);
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' + (d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.definition, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                ttip += child_html(d);
+                return ttip;
+            }
+
+            var apply_html = function (d) {
+                var apply_title = "apply info"
+                var ttip = '';
+                ttip += title_html(d);
+                if (d.apply == null) {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>' + ("<p class='explain'>" + "resource apply failed" + "</p><br>" + '<hr style="background-color:black"/>');
+                }
+                else {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>' + (d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                }
+                ttip += child_html(d);
+                return ttip;
+            }
+
+            var plan_html = function (d) {
+                var plan_title = "plan info"
+                var ttip = '';
+                ttip += title_html(d);
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>' + (d.plan.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.plan, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                ttip += child_html(d);
+                return ttip;
             }
 
             var get_downstream_nodes = function (node) {
@@ -461,21 +494,88 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
             }
 
-            // colorize nodes, and add mouse candy.
-            svg.selectAll('g.node')
+            // click event handling
+            var tfstatenode_click = function (d) {
+                var html = tfstate_html(d);
+                state.htmlCallback && state.htmlCallback(html);
+            }
+
+            var applynode_click = function (d) {
+                var html = apply_html(d);
+                state.htmlCallback && state.htmlCallback(html);
+            }
+
+            var plannode_click = function (d) {
+                var html = plan_html(d);
+                state.htmlCallback && state.htmlCallback(html);
+            }
+
+            var gnodes = svg.selectAll('g.node')
                 .data(svg_nodes, function (d) {
                     return (d && d.svg_id) || d3.select(this).attr("id");
-                })
+                });
+
+            // colorize nodes, and add mouse candy.
+            gnodes
                 .on('mouseenter', node_mouseenter)
                 .on('mouseleave', node_mouseleave)
                 .on('mouseover', node_mouseover)
                 .on('mouseout', node_mouseout)
                 .on('mousedown', node_mousedown)
                 .attr('fill', function (d) { return color(d.group); })
-                .select('polygon:nth-last-of-type(2)')
+                .select('polygon:nth-last-of-type(5)')
                 .style('fill', (function (d) {
                     if (d)
                         return color(d.group);
+                    else
+                        return '#000';
+                }));
+
+            // colorize tfstate nodes, and add mouse candy.
+            gnodes.select('polygon:nth-of-type(2)')
+                .on('click', tfstatenode_click)
+                .style('fill', (function (d) {
+                    if (d)
+                        return "#00CCFF";
+                    else
+                        return '#000';
+                }));
+
+            // colorize plan nodes, and add mouse candy.
+            gnodes
+                .select('polygon:nth-child(3n+4)')
+                .attr('fill', function (d) { return color(d.group); })
+                .on('click', (function (d) {
+                    if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
+                        return "";
+                    else
+                        return plannode_click(d);
+                }))
+                .style('fill', (function (d) {
+                    if (d) {
+                        if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
+                            return "fff";
+                        else
+                            return "#ffff00";
+                    }
+                    else
+                        return '#000';
+                }));
+
+            // colorize apply nodes, and add mouse candy.
+            gnodes.select('polygon:nth-of-type(4)')
+                .on('click', applynode_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                        if (d.apply == null) {
+                            return "#ff0000";
+                        }
+                        else if (d.apply == "not yet applied") {
+                            return "#708090";
+                        }
+                        else
+                            return "#00ff40";
+                    }
                     else
                         return '#000';
                 }));
@@ -618,14 +718,14 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                         //console.log(svg_nodes[i]);
                         $(selector + '-search').selectize()[0].selectize.addOption(svg_nodes[i]);
                     }
-                    if (state.params.refocus && state.params.refocus.length > 0) {
+                    if (state.params && state.params.refocus && state.params.refocus.length > 0) {
                         var n = state.params.refocus;
                     }
 
                     // because of scoping, we need to change the onChange callback to the new version
                     // of select_node(), and delete the old callback associations.
                     $(selector + '-search').selectize()[0].selectize.settings.onChange = select_node;
-                    $(selector + '-search').selectize()[0].selectize.swapOnChange();
+                    // $(selector + '-search').selectize()[0].selectize.swapOnChange();
                 }
                 else {
                     $(selector + '-search').selectize({

@@ -16,6 +16,19 @@
         .navbar-brand {
             font-family: 'courier new';
         }
+
+        #side-panel {
+            display: none;
+            position: fixed;
+            background: #000;
+            top: 69px;
+            min-width: 20rem;
+            max-width: 30rem;
+            min-height: 100%;
+            padding: 1rem;
+            opacity: 0.9;
+            color: #FFF;
+        }
     </style>
 </head>
 
@@ -133,6 +146,34 @@
                     </div>
                 </div>
             </li>
+
+            <li class="nav-item">
+                <button class="btn btn-info" type="button" id="demo-1" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" title="help">
+                    Demo 1
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="btn btn-info" type="button" id="demo-2" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" title="help">
+                    Demo 2
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="btn btn-info" type="button" id="demo-3" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" title="help">
+                    Demo 3
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="btn btn-info" type="button" id="demo-4" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false" title="help">
+                    Demo 4
+                </button>
+            </li>
         </ul>
     </nav>
 
@@ -142,14 +183,43 @@
              pan/zoom interactions and to avoid clipping                                    -->
 
     <div id="graph"></div>
-
+    <div id="side-panel">test</div>
 </body>
 
 <script>
     (function () {
         // br_state['#graph'] maintains state for this instance of blastradius
-        var br_state = { '#graph': {} }
-        blastradius('#graph', 'demo-1.svg', 'demo-1.json', br_state);
+        var br_state = {
+            '#graph': {
+                disableSvgZoom: true,
+                disableTooltip: true,
+                htmlCallback: function (html) {
+                    var panel = document.querySelector('#side-panel');
+                    panel.innerHTML = html;
+                    panel.style.display = 'block';
+                }
+            }
+        }
+
+        blastradius('#graph', './demo-1/demonew-1.svg', './demo-1/demo-1.json', br_state);
+
+        var demo1 = document.querySelector('#demo-1');
+        var demo2 = document.querySelector('#demo-2');
+        var demo3 = document.querySelector('#demo-3');
+        var demo4 = document.querySelector('#demo-4');
+
+        demo1.addEventListener('click', function (event) {
+            blastradius('#graph', './demo-1/demonew-1.svg', './demo-1/demo-1.json', br_state);
+        })
+        demo2.addEventListener('click', function (event) {
+            blastradius('#graph', './demo-2/demonew-2.svg', './demo-2/demo-2.json', br_state);
+        })
+        demo3.addEventListener('click', function (event) {
+            blastradius('#graph', './demo-3/demonew-3.svg', './demo-3/demo-3.json', br_state);
+        })
+        demo4.addEventListener('click', function (event) {
+            blastradius('#graph', './demo-4/demo-4.svg', './demo-4/demo-4.json', br_state);
+        })
     })()
 </script>
 
