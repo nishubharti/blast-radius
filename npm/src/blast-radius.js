@@ -105,10 +105,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
     var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
     var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
-    state['color'] = color;
-
-    //console.log(state);
-
+    
     // 1st pull down the svg, and append it to the DOM as a child
     // of our selector. If added as <img src="x.svg">, we wouldn't
     // be able to manipulate x.svg with d3.js, or other DOM fns. 
