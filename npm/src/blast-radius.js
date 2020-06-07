@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import d3Tip from 'd3-tip';
 import { resource_groups } from './categories';
+import { resource_types } from './resource-types';
 import svgPanZoom from 'svg-pan-zoom';
 import $ from 'jquery';
 import 'selectize';
@@ -41,6 +42,16 @@ var to_list = function (obj) {
     for (var k in obj)
         lst.push(obj[k]);
     return lst;
+}
+
+var group_resources = function (node) {
+    var unum = -1;
+    var nodeType = node.type;
+    if (nodeType in resource_groups) return resource_groups[nodeType];
+    Object.keys(resource_types).forEach(function (key) {
+        if (nodeType.indexOf(key) !== -1) unum = resource_types[key];
+    });
+    return unum;
 }
 
 var Queue = function () {
@@ -135,11 +146,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             var nodes = {};
             data.nodes.forEach(function (node) {
                 if (!(node.type in resource_groups))
-                    console.log(node.type)
+                    // console.log(node.type)
                 if (node.label == '[root] root') { // FIXME: w/ tf 0.11.2, resource_name not set by server.
                     node.resource_name = 'root';
                 }
-                node.group = (node.type in resource_groups) ? resource_groups[node.type] : -1;
+                node.group = group_resources(node);
                 nodes[node['label']] = node;
                 svg_nodes.push(node);
             });
@@ -516,7 +527,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var selectorMain, selectorTFState, selectorPlan, selectorApply;
 
                 var polysize = d3.select(_self).selectAll('polygon').size();
-                
+
                 if (polysize == 2) {
                     selectorMain = "polygon:nth-last-of-type(2)";
                 }
