@@ -400,7 +400,7 @@ class DotGraph(Graph):
                                         <TR><TD>{{node.type}}</TD><TD rowspan="2"></TD><TD rowspan="2">-/+</TD><TD rowspan="2"></TD></TR>
                                     {% elif  node.plan.change.actions[0] == "delete"%}
                                         <TR><TD>{{node.type}}</TD><TD rowspan="2"></TD><TD rowspan="2">-</TD><TD rowspan="2"></TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "modify"%}
+                                    {% elif  node.plan.change.actions[0] == "update"%}
                                         <TR><TD>{{node.type}}</TD><TD rowspan="2"></TD><TD rowspan="2">#</TD><TD rowspan="2"></TD></TR>
                                     {% else %}
                                         <TR><TD>{{node.type}}</TD><TD rowspan="2"></TD><TD rowspan="2"></TD><TD rowspan="2"></TD></TR>
