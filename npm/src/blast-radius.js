@@ -105,13 +105,13 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
     var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
     var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
-    
+
     // 1st pull down the svg, and append it to the DOM as a child
     // of our selector. If added as <img src="x.svg">, we wouldn't
     // be able to manipulate x.svg with d3.js, or other DOM fns. 
     d3.xml(svg_url, function (error, xml) {
         d3.select(selector).selectAll("svg").remove();
-        
+
         container.node()
             .appendChild(document.importNode(xml.documentElement, true));
 
@@ -239,7 +239,6 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             var child_html = function (d) {
                 var children = [];
                 var edges = edges_by_source[d.label];
-                //console.log(edges);
                 for (i in edges) {
                     var edge = edges[i];
                     if (edge.edge_type == edge_types.NORMAL || edge.edge_type == edge_types.HIDDEN) {
@@ -512,70 +511,94 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     return (d && d.svg_id) || d3.select(this).attr("id");
                 });
 
+            gnodes.each(function (d, i) {
+                var _self = this;
+                var selectorMain, selectorTFState, selectorPlan, selectorApply;
+
+                var polysize = d3.select(_self).selectAll('polygon').size();
+                
+                if (polysize == 2) {
+                    selectorMain = "polygon:nth-last-of-type(2)";
+                }
+
+                if (polysize == 3) {
+                    selectorMain = "polygon:nth-last-of-type(3)";
+                    selectorTFState = "polygon:nth-last-of-type(2)";
+                }
+
+                if (polysize == 5) {
+                    selectorMain = "polygon:nth-last-of-type(5)";
+                    selectorTFState = "polygon:nth-last-of-type(4)";
+                    selectorPlan = "polygon:nth-last-of-type(3)";
+                    selectorApply = "polygon:nth-last-of-type(2)";
+                }
+
+                if (selectorMain !== undefined) {
+                    d3.select(_self)
+                        .selectAll(selectorMain)
+                        .style('fill', (function (i) {
+                            return color(d.group);
+                        }));
+                }
+
+                if (selectorTFState !== undefined) {
+                    d3.select(_self)
+                        .select(selectorTFState)
+                        .on('click', tfstatenode_click)
+                        .style('fill', (function (i) {
+                            return "#00CCFF";
+                        }));
+                }
+
+                if (selectorPlan !== undefined) {
+                    d3.select(_self)
+                        .select(selectorPlan)
+                        .on('click', (function (d) {
+                            if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
+                                return "";
+                            else
+                                return plannode_click(d);
+                        }))
+                        .style('fill', (function (i) {
+                            if (d) {
+                                if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
+                                    return "fff";
+                                else
+                                    return "#ffff00";
+                            }
+                            else
+                                return '#000';
+                        }));
+                }
+
+                if (!selectorApply !== undefined) {
+                    d3.select(_self)
+                        .select(selectorApply)
+                        .on('click', applynode_click)
+                        .style('fill', (function (i) {
+                            if (d) {
+                                if (d.apply == null) {
+                                    return "#ff0000";
+                                }
+                                else if (d.apply == "not yet applied") {
+                                    return "#708090";
+                                }
+                                else
+                                    return "#00ff40";
+                            }
+                            else
+                                return '#000';
+                        }));
+                }
+            });
+
             // colorize nodes, and add mouse candy.
             gnodes
                 .on('mouseenter', node_mouseenter)
                 .on('mouseleave', node_mouseleave)
                 .on('mouseover', node_mouseover)
                 .on('mouseout', node_mouseout)
-                .on('mousedown', node_mousedown)
-                .attr('fill', function (d) { return color(d.group); })
-                .select('polygon:nth-last-of-type(5)')
-                .style('fill', (function (d) {
-                    if (d)
-                        return color(d.group);
-                    else
-                        return '#000';
-                }));
-
-            // colorize tfstate nodes, and add mouse candy.
-            gnodes.select('polygon:nth-of-type(2)')
-                .on('click', tfstatenode_click)
-                .style('fill', (function (d) {
-                    if (d)
-                        return "#00CCFF";
-                    else
-                        return '#000';
-                }));
-
-            // colorize plan nodes, and add mouse candy.
-            gnodes
-                .select('polygon:nth-child(3n+4)')
-                .attr('fill', function (d) { return color(d.group); })
-                .on('click', (function (d) {
-                    if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
-                        return "";
-                    else
-                        return plannode_click(d);
-                }))
-                .style('fill', (function (d) {
-                    if (d) {
-                        if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
-                            return "fff";
-                        else
-                            return "#ffff00";
-                    }
-                    else
-                        return '#000';
-                }));
-
-            // colorize apply nodes, and add mouse candy.
-            gnodes.select('polygon:nth-of-type(4)')
-                .on('click', applynode_click)
-                .style('fill', (function (d) {
-                    if (d) {
-                        if (d.apply == null) {
-                            return "#ff0000";
-                        }
-                        else if (d.apply == "not yet applied") {
-                            return "#708090";
-                        }
-                        else
-                            return "#00ff40";
-                    }
-                    else
-                        return '#000';
-                }));
+                .on('mousedown', node_mousedown);
 
             // colorize modules
             svg.selectAll('polygon')
@@ -626,10 +649,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     panzoom = svgPanZoom(svg_el).disableDblClickZoom();
                 }
 
-                console.log('bang');
-                console.log(state);
                 if (state['no_scroll_zoom'] == true) {
-                    console.log('bang');
                     panzoom && panzoom.disableMouseWheelZoom();
                 }
 
@@ -707,12 +727,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     click_count = 0;
                     node_mousedown(nodes[d], false, false, false, true);
                 }
-
+                var selectized = null;
                 if ($(selector + '-search.selectized').length > 0) {
                     $(selector + '-search').selectize()[0].selectize.clear();
                     $(selector + '-search').selectize()[0].selectize.clearOptions();
                     for (var i in svg_nodes) {
-                        //console.log(svg_nodes[i]);
                         $(selector + '-search').selectize()[0].selectize.addOption(svg_nodes[i]);
                     }
                     if (state.params && state.params.refocus && state.params.refocus.length > 0) {
@@ -725,7 +744,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     // $(selector + '-search').selectize()[0].selectize.swapOnChange();
                 }
                 else {
-                    $(selector + '-search').selectize({
+                    selectized = $(selector + '-search').selectize({
                         valueField: 'label',
                         searchField: ['label'],
                         maxItems: 1,
