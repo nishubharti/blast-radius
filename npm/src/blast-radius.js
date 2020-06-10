@@ -7,6 +7,23 @@ import $ from 'jquery';
 import 'selectize';
 import '@fortawesome/fontawesome-free/js/all';
 
+const mycolors = [
+    "#e1c9ec",
+    "#90c793",
+    "#ffeaae",
+    "#faa5b3",
+    "#eca58f",
+    "#9698dd",
+    "#c6ffc4",
+    "#b6cbd2",
+    "#ccaca1",
+    "#ff9130",
+    "#abef70",
+    "#daadad",
+    "#7f74f6",
+    "#af6b8d"
+];
+
 //
 // terraform-graph.js 
 //
@@ -113,7 +130,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     // color assignments (resource_type : rgb) are stateful. If we use a new palette
     // every time the a subgraph is selected, the color assignments would differ and
     // become confusing.
-    var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
+    var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(mycolors));
     var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
     var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
 
