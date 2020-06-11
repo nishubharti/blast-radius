@@ -16,5 +16,9 @@ export const resource_types = {
     "ibm_is_security_": 600,
     "ibm_is_lb_": 601,
     "ibm_is_vpc_": 602,
-    "template_": 603
+    "template_": 603,
+    "ibm_cos_": 604,
+    "ibm_kp_": 605,
+    "ibm_resource_": 606,
+    "ibm_iam_": 607,
 }

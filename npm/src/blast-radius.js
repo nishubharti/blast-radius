@@ -130,7 +130,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     // color assignments (resource_type : rgb) are stateful. If we use a new palette
     // every time the a subgraph is selected, the color assignments would differ and
     // become confusing.
-    var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(mycolors));
+    // var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
+    var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
     var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
     var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
 
@@ -163,11 +164,12 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             var nodes = {};
             data.nodes.forEach(function (node) {
                 if (!(node.type in resource_groups))
-                    // console.log(node.type)
+                    // console.log(node.group, node.type)
                 if (node.label == '[root] root') { // FIXME: w/ tf 0.11.2, resource_name not set by server.
                     node.resource_name = 'root';
                 }
                 node.group = group_resources(node);
+                // console.log(node.resource_name, node.group, node.type)
                 nodes[node['label']] = node;
                 svg_nodes.push(node);
             });
