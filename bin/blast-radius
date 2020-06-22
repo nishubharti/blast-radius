@@ -74,7 +74,8 @@ def main():
         if args.graph is sys.stdin:
             dot = DotGraph('','', file_contents=sys.stdin.read())
         elif args.newsvg:                      #for extended blasradius svg
-            dot = DotGraph('ext','', file_contents=run_tf_graph())
+            dot = DotGraph('ext','', args.graph)
+            
         else:
             dot = DotGraph('',args.graph)
 
