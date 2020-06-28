@@ -547,6 +547,10 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
                 var polysize = d3.select(_self).selectAll('polygon').size();
 
+                if (polysize == 1) {
+                    selectorMain = "polygon:nth-last-of-type(1)";
+                }
+
                 if (polysize == 2) {
                     selectorMain = "polygon:nth-last-of-type(2)";
                 }
