@@ -522,15 +522,12 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 }));
 
             
-            
-
-            
             node.select('polygon:nth-of-type(3)')
                 .on('click',(function (d) {
                     
                       return tfstate_click(d);
                   
-              }))
+            }))
                 .style('fill', (function (d) {
                     if (d)
                       
@@ -577,7 +574,7 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                       {
                           return "#808080";
                       }
-                     else if(d.apply == null || d.apply.instances[0] == null )
+                     else if(d.apply == null || d.apply.instances == null )
                       {
                         return "#ff0000";
                       }
@@ -607,10 +604,6 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                             return '#000';
                     }));
             
-            
-
-
-
             
             node.select('polygon:nth-of-type(7)')
 

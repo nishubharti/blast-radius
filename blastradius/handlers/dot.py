@@ -40,7 +40,6 @@ class DotGraph(Graph):
         self.policy = Policy()
         self.totalcost = ""
 
-        
         if file_contents:
             self.contents = file_contents
         else:

@@ -90,8 +90,6 @@ def graphsimple_svg():
 def simple_graph():
     file_contents=run_tf_graph()
     new_file_content = ''
-
-
     for line in file_contents.splitlines():
         if re.search("var",line) or re.search("provider",line) or re.search("meta.count-boundary",line) or re.search("output",line):
             if re.search("meta.count-boundary",line) and not (re.search("output",line) or re.search("var",line) or re.search('\[root\] root',line)):
