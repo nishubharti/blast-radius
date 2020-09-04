@@ -184,19 +184,21 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 var apply_title = "apply info"
                 var ttip = ''; 
                 ttip += title_html(d);
-                if( d.apply == null )
+                if (d.apply == "not yet applied" )
                 {
-                 ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + "resource apply failed" + "</p><br>"+ '<hr style="background-color:black"/>');
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + "not yet applied" + "</p><br>"+ '<hr style="background-color:black"/>');
   
                 }
-                else if (d.apply.instances[0] == null )
-                {
-                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + "resource apply failed" + "</p><br>"+ '<hr style="background-color:black"/>');
+                else {
+                    if( d.apply == null || d.apply.instances[0] == null)
+                    {
+                        ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + "resource apply failed" + "</p><br>"+ '<hr style="background-color:black"/>');
   
-                }
-                else
-                {
-                 ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                    }
+                    else
+                    {
+                         ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                    }
                 }
                 ttip += child_html(d);
                 
@@ -530,21 +532,17 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 .style('fill', (function (d) {
                     if (d)
                     {
-                      if (d.apply == null )
+                     if(d.apply == "not yet applied")
+                      {
+                          return "#808080";
+                      }
+                     else if(d.apply == null || d.apply.instances[0] == null )
                       {
                         return "#ff0000";
-                      } 
-                      else if (d.apply.instances[0] == null )
-                      {
-                        
-                        return "#ff0000";
                       }
-                      else if(d.apply == "not yet applied")
-                      {
-                          return "#708090";
-                      }
-                      else
+                      else{
                         return "#00ff40";
+                      }
                     }   
                     else
                         return '#000';
