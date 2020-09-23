@@ -32,8 +32,8 @@ def main():
     output_group.add_argument('--json', action='store_const', const=True, default=False, help='print a json representation of the Terraform graph')
     output_group.add_argument('--dot', action='store_const', const=True, default=False, help='print the graphviz/dot representation of the Terraform graph')
     output_group.add_argument('--svg', action='store_const', const=True, default=False, help='print the svg representation of the Terraform graph')
-    output_group.add_argument('--newsvg', action='store_const', const=True, default=False, help='print the modified svg representation of the Terraform graph')
-    output_group.add_argument('--simplesvg', action='store_const', const=True, default=False, help='print the simple svg of modified svg representation of the Terraform graph')
+    output_group.add_argument('--newsvg', action='store_const', const=True, default=False, help='download the modified svg representation of the Terraform graph')
+    output_group.add_argument('--simplesvg', action='store_const', const=True, default=False, help='download the simple svg of modified svg representation of the Terraform graph')
     output_group.add_argument('--serve', action='store_const', const=True, default=False, help='spins up a webserver with an interactive Terraform graph')
     
     parser.add_argument('--graph', type=str, help='`terraform graph` output (defaults to stdin)', default=sys.stdin)
@@ -121,15 +121,24 @@ def main():
                 node.definition = tf.get_def(node)
         
         if args.json:
-            print(dot.json())
+            f = open("visualization.json", "a")
+            f.write(dot.json())
+            f.close()
+            # print(dot.json())
         elif args.dot:
             print(dot.dot())
         elif args.svg:
             print(dot.svg())
         elif args.newsvg:
-            print(dot.svg())
+            f = open("visualization.svg", "a")
+            f.write(dot.svg())
+            f.close()
+            # print(dot.svg())
         elif args.simplesvg:
-            print(dot.svg())
+            f = open("visualization_simple.svg", "a")
+            f.write(dot.svg())
+            f.close()
+            # print(dot.svg())
     else:
         parser.print_help()
 
