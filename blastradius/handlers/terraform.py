@@ -5,7 +5,7 @@ import os
 import re
 
 # 3rd party libraries
-import hcl    # hashicorp configuration language (.tf)
+import hcl2 as hcl   # hashicorp configuration language (.tf)
 
 class Terraform:
     """Finds terraform/hcl files (*.tf) in CWD or a supplied directory, parses
@@ -22,6 +22,7 @@ class Terraform:
         for fname in iterator:
             with open(fname, 'r', encoding='utf-8') as f:
                 self.config_str += f.read() + ' '
+        
         config_io = io.StringIO(self.config_str)
         self.config = hcl.load(config_io)
 
@@ -80,19 +81,44 @@ class Terraform:
 
         try:
             # non resource types
-            types = { 'var'  : lambda x: self.config['variable'][x.resource_name],
-            'provider'     : lambda x: self.config['provider'][x.resource_name],
-            'output'       : lambda x: self.config['output'][x.resource_name],
-            'data'         : lambda x: self.config['data'][x.resource_name],
-            'meta'         : lambda x: '',
-            'provisioner'  : lambda x: '',
-            ''             : lambda x: '' }
+            # types = { 'var'  : lambda x: self.config['variable'][x.resource_name],
+            # 'provider'     : lambda x: self.config['provider'][x.resource_name],
+            # 'output'       : lambda x: self.config['output'][x.resource_name],
+            # 'data'         : lambda x: self.config['data'][x.resource_name],
+            # 'meta'         : lambda x: '',
+            # 'provisioner'  : lambda x: '',
+            # ''             : lambda x: '' }
+            types = {'output','data','provider'}
+
             if node.type in types:
-                return types[node.type](node)
+                for n in self.config[node.type]:
+                    if node.resource_name in n:
+                        return n[node.resource_name]
+
+                return ''
+            
+            if node.type == 'var':
+                for n in self.config['variable']:
+                    if node.resource_name in n:
+                        return n[node.resource_name]
+
+                return ''
 
             # resources are a little different _many_ possible types,
             # nested within the 'resource' field.
             else:
-                return self.config['resource'][node.type][node.resource_name]
+                
+                for n in self.config['resource']:
+                    if node.type in n:
+                        if node.resource_name in n[node.type]:
+                            return n[node.type][node.resource_name]
+                
+                return ''
+
+
+                #     print("node type is",node.type)
+                #     print("here i is******",i[node.type])                     
+
+                # return self.config['resource'][0][node.type][node.resource_name]
         except:
             return ''

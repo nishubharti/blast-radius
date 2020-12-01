@@ -99,14 +99,22 @@
     ],
     "nodes": [
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "location": "global",
-                "name": "web_domain",
-                "plan": "standard",
-                "resource_group_id": "${ibm_resource_group.web_group.id}"
+                "location": [
+                    "global"
+                ],
+                "name": [
+                    "web_domain"
+                ],
+                "plan": [
+                    "standard"
+                ],
+                "resource_group_id": [
+                    "${ibm_resource_group.web_group.id}"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_cis.web_domain",
@@ -160,21 +168,20 @@
             "resource_name": "web_domain",
             "simple_name": "ibm_cis.web_domain",
             "svg_id": "node_0",
+            "time": "no time estimation available",
             "type": "ibm_cis"
         },
         {
-            "apply": {
-                "instances": [],
-                "mode": "managed",
-                "name": "web_domain",
-                "provider": "provider.ibm",
-                "type": "ibm_cis_domain"
-            },
+            "apply": "not yet applied",
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "cis_id": "${ibm_cis.web_domain.id}",
-                "domain": "${var.domain}"
+                "cis_id": [
+                    "${ibm_cis.web_domain.id}"
+                ],
+                "domain": [
+                    "${var.domain}"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_cis_domain.web_domain",
@@ -210,51 +217,33 @@
                     "domain": "example.com"
                 }
             },
-            "policy": {
-                "decision": "pass",
-                "name": "web_domain",
-                "policies": [
-                    {
-                        "capsule": "SecurityCapsule",
-                        "control": "SecurityControl",
-                        "rules": [
-                            "ibm_cis_domain_settings"
-                        ],
-                        "severity": ""
-                    },
-                    {
-                        "capsule": "ConfigCapsule",
-                        "control": "ConfigurationControl",
-                        "rules": [
-                            "too_many_admins",
-                            "too_many_managers"
-                        ],
-                        "severity": ""
-                    }
-                ],
-                "type": "ibm_cis_domain"
-            },
+            "policy": "no policy available",
             "resource_name": "web_domain",
             "simple_name": "ibm_cis_domain.web_domain",
             "svg_id": "node_1",
+            "time": "no time estimation available",
             "type": "ibm_cis_domain"
         },
         {
-            "apply": {
-                "instances": [],
-                "mode": "managed",
-                "name": "web_domain",
-                "provider": "provider.ibm",
-                "type": "ibm_cis_domain_settings"
-            },
+            "apply": "not yet applied",
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "cis_id": "${ibm_cis.web_domain.id}",
-                "domain_id": "${ibm_cis_domain.web_domain.id}",
-                "min_tls_version": "1.2",
-                "ssl": "flexible",
-                "waf": "on"
+                "cis_id": [
+                    "${ibm_cis.web_domain.id}"
+                ],
+                "domain_id": [
+                    "${ibm_cis_domain.web_domain.id}"
+                ],
+                "min_tls_version": [
+                    "1.2"
+                ],
+                "ssl": [
+                    "flexible"
+                ],
+                "waf": [
+                    "on"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_cis_domain_settings.web_domain",
@@ -315,58 +304,38 @@
             },
             "policy": {
                 "decision": "failed",
-                "name": "web_domain",
-                "policies": [
+                "evidences": [
                     {
                         "capsule": "SecurityCapsule",
-                        "control": "SecurityControl",
+                        "control": "",
+                        "policy": "terraform.analysis.ibm.cis",
                         "rules": [
-                            "ibm_cis_domain_settings"
+                            {
+                                "result": "failed",
+                                "rule": "cis_ssl_misconfigured",
+                                "severity": 5
+                            }
                         ],
-                        "severity": ""
-                    },
-                    {
-                        "capsule": "ConfigCapsule",
-                        "control": "ConfigurationControl",
-                        "rules": [
-                            "too_many_admins",
-                            "too_many_managers"
-                        ],
-                        "severity": ""
+                        "severity": 5
                     }
                 ],
+                "name": "web_domain",
                 "type": "ibm_cis_domain_settings"
             },
             "resource_name": "web_domain",
             "simple_name": "ibm_cis_domain_settings.web_domain",
             "svg_id": "node_2",
+            "time": "no time estimation available",
             "type": "ibm_cis_domain_settings"
         },
         {
-            "apply": {
-                "instances": [
-                    {
-                        "attributes": {
-                            "default": false,
-                            "id": "769cf60b1ecc4cb092cab5e7af075d3f",
-                            "name": "gilad-test-group1",
-                            "quota_id": null,
-                            "state": "ACTIVE",
-                            "tags": null
-                        },
-                        "private": "bnVsbA==",
-                        "schema_version": 0
-                    }
-                ],
-                "mode": "managed",
-                "name": "web_group",
-                "provider": "provider.ibm",
-                "type": "ibm_resource_group"
-            },
+            "apply": "not yet applied",
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "name": "${var.resource_group}"
+                "name": [
+                    "${var.resource_group}"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_resource_group.web_group",
@@ -407,14 +376,17 @@
             "resource_name": "web_group",
             "simple_name": "ibm_resource_group.web_group",
             "svg_id": "node_3",
+            "time": "no time estimation available",
             "type": "ibm_resource_group"
         },
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "value": "http://${var.dns_name}${var.domain}"
+                "value": [
+                    "http://${var.dns_name}${var.domain}"
+                ]
             },
             "group": 20000,
             "label": "[root] output.web_dns_name",
@@ -427,12 +399,13 @@
             "resource_name": "web_dns_name",
             "simple_name": "output.web_dns_name",
             "svg_id": "node_4",
+            "time": "no time estimation available",
             "type": "output"
         },
         {
             "apply": {},
             "cluster": "root",
-            "cost": "cost data to be displayed here",
+            "cost": "no cost data available",
             "definition": {},
             "group": 20000,
             "label": "[root] provider.ibm",
@@ -441,18 +414,21 @@
                 "root"
             ],
             "plan": {},
-            "policy": "policy data to be displayed here",
+            "policy": "no policy data available",
             "resource_name": "ibm",
             "simple_name": "provider.ibm",
             "svg_id": "node_5",
+            "time": "no time estimation available",
             "type": "provider"
         },
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "cluster[root] meta.count-boundary (EachMode fixup)_var_",
             "cost": "no cost available",
             "definition": {
-                "default": "lon02"
+                "default": [
+                    "lon02"
+                ]
             },
             "group": 20000,
             "label": "[root] var.datacenter1",
@@ -465,14 +441,17 @@
             "resource_name": "datacenter1",
             "simple_name": "var.datacenter1",
             "svg_id": "node_6",
+            "time": "no time estimation available",
             "type": "var"
         },
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "cluster[root] meta.count-boundary (EachMode fixup)_var_",
             "cost": "no cost available",
             "definition": {
-                "default": "ams03"
+                "default": [
+                    "ams03"
+                ]
             },
             "group": 20000,
             "label": "[root] var.datacenter2",
@@ -485,15 +464,20 @@
             "resource_name": "datacenter2",
             "simple_name": "var.datacenter2",
             "svg_id": "node_7",
+            "time": "no time estimation available",
             "type": "var"
         },
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "cluster[root] output.web_dns_name_var_",
             "cost": "no cost available",
             "definition": {
-                "default": "",
-                "description": "DNS name (prefix) for website, including '.', 'www.'"
+                "default": [
+                    ""
+                ],
+                "description": [
+                    "DNS name (prefix) for website, including '.', 'www.'"
+                ]
             },
             "group": 20000,
             "label": "[root] var.dns_name",
@@ -506,15 +490,20 @@
             "resource_name": "dns_name",
             "simple_name": "var.dns_name",
             "svg_id": "node_8",
+            "time": "no time estimation available",
             "type": "var"
         },
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "default": "example.com",
-                "description": "DNS Domain for web server"
+                "default": [
+                    "example.com"
+                ],
+                "description": [
+                    "DNS Domain for web server"
+                ]
             },
             "group": 20000,
             "label": "[root] var.domain",
@@ -527,15 +516,20 @@
             "resource_name": "domain",
             "simple_name": "var.domain",
             "svg_id": "node_9",
+            "time": "no time estimation available",
             "type": "var"
         },
         {
-            "apply": null,
+            "apply": "not yet applied",
             "cluster": "cluster[root] ibm_resource_group.web_group_var_",
             "cost": "no cost available",
             "definition": {
-                "default": "gilad-test-group1",
-                "description": "IBM Cloud Resource Group"
+                "default": [
+                    "gilad-test-group1"
+                ],
+                "description": [
+                    "IBM Cloud Resource Group"
+                ]
             },
             "group": 20000,
             "label": "[root] var.resource_group",
@@ -548,6 +542,7 @@
             "resource_name": "resource_group",
             "simple_name": "var.resource_group",
             "svg_id": "node_10",
+            "time": "no time estimation available",
             "type": "var"
         },
         {
@@ -566,6 +561,7 @@
             "resource_name": "count-boundary",
             "simple_name": "meta.count-boundary (EachMode fixup)",
             "svg_id": "node_11",
+            "time": {},
             "type": "meta"
         },
         {
@@ -584,6 +580,7 @@
             "resource_name": "ibm",
             "simple_name": "provider.ibm (close)",
             "svg_id": "node_12",
+            "time": {},
             "type": "provider"
         },
         {
@@ -602,8 +599,10 @@
             "resource_name": "",
             "simple_name": "root",
             "svg_id": "node_13",
+            "time": {},
             "type": ""
         }
     ],
-    "totalcost": ""
+    "totalcost": "",
+    "totaltime": ""
 }

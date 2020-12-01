@@ -302,7 +302,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             var tfstate_html = function (d) {
-                var title = "tf state info"
+                var title = "config info"
                 var ttip = '';
                 ttip += title_html(d);
                 ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' + (d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.definition, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
@@ -339,8 +339,15 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 ttip += title_html(d);
                 ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>' + (d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.cost, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
                 ttip += child_html(d);
+                return ttip;
+            }
 
-
+            var time_html = function(d) {
+                var time_title = "time info"
+                var ttip = ''; 
+                ttip += title_html(d);
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.time, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                ttip += child_html(d);
                 return ttip;
             }
 
@@ -576,6 +583,10 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var html = policy_html(d);
                 state.htmlCallback && state.htmlCallback(html);
             }
+            var timenode_click = function (d) {
+                var html = time_html(d);
+                state.htmlCallback && state.htmlCallback(html);
+            }
 
 
 
@@ -585,11 +596,12 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 });
 
             gnodes.each(function (d, i) {
+                
                 var _self = this;
-                var selectorMain, selectorTFState, selectorPlan, selectorApply, selectorCost, selectorPolicy;
+                var selectorMain, selectorTFState, selectorPlan, selectorApply,selectorCost,selectorPolicy,selectorTime;
 
                 var polysize = d3.select(_self).selectAll('polygon').size();
-
+                
                 if (polysize == 1) {
                     selectorMain = "polygon:nth-last-of-type(1)";
                 }
@@ -597,20 +609,22 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 if (polysize == 2) {
                     selectorMain = "polygon:nth-last-of-type(2)";
                 }
-
+                // console.log(d.label)
                 if (polysize == 3) {
                     selectorMain = "polygon:nth-last-of-type(3)";
-                    selectorTFState = "polygon:nth-last-of-type(1)";
+                    // selectorTFState = "polygon:nth-last-of-type(1)";
+                    
                 }
 
 
-                if (polysize == 7) {
-                    selectorMain = "polygon:nth-last-of-type(7)";
-                    selectorTFState = "polygon:nth-last-of-type(5)";
-                    selectorPlan = "polygon:nth-last-of-type(4)";
-                    selectorApply = "polygon:nth-last-of-type(3)";
+                if (polysize == 8) {
+                    selectorMain = "polygon:nth-last-of-type(8)";
+                    selectorTFState = "polygon:nth-last-of-type(6)";
+                    selectorPlan = "polygon:nth-last-of-type(5)";
+                    selectorApply = "polygon:nth-last-of-type(4)";
+                    selectorPolicy = "polygon:nth-last-of-type(3)";
                     selectorCost = "polygon:nth-last-of-type(2)";
-                    selectorPolicy = "polygon:nth-last-of-type(1)";
+                    selectorTime = "polygon:nth-last-of-type(1)";
                 }
 
                 if (selectorMain !== undefined) {
@@ -681,9 +695,26 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                                 if (d.cost == "no cost available" || d.cost == null) {
                                     return "#808080";
                                 }
-                                else {
-                                    return "#fff";
+                                else
+                                    return "#00ff40";
+                            }
+                            else
+                                return '#000';
+                        }));
+                }
+
+                if (!selectorTime !== undefined) {
+                    d3.select(_self)
+                        .select(selectorTime)
+                        .on('click',timenode_click)
+                        .style('fill', (function (d) {
+                            if (d){
+                                if(d.time == "no time estimation available" || d.time == null)
+                                {
+                                    return "#808080";
                                 }
+                                else
+                                    return "#00ff40";
                             }
                             else
                                 return '#000';
