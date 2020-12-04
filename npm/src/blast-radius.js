@@ -105,6 +105,10 @@ Queue.prototype.dequeue = function () {
 // info from json_url to highlight/annotate it.
 var blastradius = function (selector, svg_url, json_url, br_state) {
 
+    var errorFunc = function (error) {
+        console.log('XML Error', error);
+    };
+
     // TODO: remove scale.
     var scale = null
 
@@ -135,14 +139,21 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
     var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
     var disableSvgHover = state['disableSvgHover'] ? state['disableSvgHover'] : false;
+    var errorCallback = state['errorCallback'] ? state['errorCallback'] : errorFunc;
+
     // 1st pull down the svg, and append it to the DOM as a child
     // of our selector. If added as <img src="x.svg">, we wouldn't
     // be able to manipulate x.svg with d3.js, or other DOM fns. 
     d3.xml(svg_url, function (error, xml) {
         d3.select(selector).selectAll("svg").remove();
 
-        container.node()
-            .appendChild(document.importNode(xml.documentElement, true));
+        if (error) {
+            if (errorCallback) errorCallback(error);
+            return;
+        } else {
+            container.node()
+                .appendChild(document.importNode(xml.documentElement, true));
+        }
 
         // remove <title>s in svg; graphviz leaves these here and they
         // trigger useless tooltips.
@@ -165,9 +176,9 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             data.nodes.forEach(function (node) {
                 if (!(node.type in resource_groups))
                     // console.log(node.group, node.type)
-                if (node.label == '[root] root') { // FIXME: w/ tf 0.11.2, resource_name not set by server.
-                    node.resource_name = 'root';
-                }
+                    if (node.label == '[root] root') { // FIXME: w/ tf 0.11.2, resource_name not set by server.
+                        node.resource_name = 'root';
+                    }
                 node.group = group_resources(node);
                 // console.log(node.resource_name, node.group, node.type)
                 nodes[node['label']] = node;
@@ -322,23 +333,23 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 return ttip;
             }
 
-            var cost_html = function(d) {
+            var cost_html = function (d) {
                 var cost_title = "cost info"
-                var ttip = ''; 
+                var ttip = '';
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.cost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>' + (d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.cost, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
                 ttip += child_html(d);
-                
-               
+
+
                 return ttip;
             }
 
-            var policy_html = function(d) {
+            var policy_html = function (d) {
                 var policy_title = "controls info"
-                var ttip = ''; 
+                var ttip = '';
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.policy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
-                ttip += child_html(d);  
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>' + (d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.policy, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                ttip += child_html(d);
                 return ttip;
             }
 
@@ -566,7 +577,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 state.htmlCallback && state.htmlCallback(html);
             }
 
-            
+
 
             var gnodes = svg.selectAll('g.node')
                 .data(svg_nodes, function (d) {
@@ -575,7 +586,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
             gnodes.each(function (d, i) {
                 var _self = this;
-                var selectorMain, selectorTFState, selectorPlan, selectorApply,selectorCost,selectorPolicy;
+                var selectorMain, selectorTFState, selectorPlan, selectorApply, selectorCost, selectorPolicy;
 
                 var polysize = d3.select(_self).selectAll('polygon').size();
 
@@ -664,14 +675,13 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 if (!selectorCost !== undefined) {
                     d3.select(_self)
                         .select(selectorCost)
-                        .on('click',costnode_click)
+                        .on('click', costnode_click)
                         .style('fill', (function (d) {
-                            if (d){
-                                if(d.cost == "no cost available" || d.cost == null)
-                                {
+                            if (d) {
+                                if (d.cost == "no cost available" || d.cost == null) {
                                     return "#808080";
                                 }
-                                else{
+                                else {
                                     return "#fff";
                                 }
                             }
@@ -683,37 +693,35 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 if (!selectorPolicy !== undefined) {
                     d3.select(_self)
                         .select(selectorPolicy)
-                        .on('click',policynode_click)
+                        .on('click', policynode_click)
                         .style('fill', (function (d) {
-                            if (d){
-                                if(d.policy == "no policy available" || d.policy == null)
-                                {
+                            if (d) {
+                                if (d.policy == "no policy available" || d.policy == null) {
                                     return "#808080";
                                 }
-                                else if(d.policy != null && d.policy.decision == "failed" )
-                                {
-                                      return "#ff0000";
+                                else if (d.policy != null && d.policy.decision == "failed") {
+                                    return "#ff0000";
                                 }
-                                else{
-                                      return "#00ff40";
+                                else {
+                                    return "#00ff40";
                                 }
-                
-                            }   
+
+                            }
                             else
-                                        return '#000';
-                            }));
+                                return '#000';
+                        }));
                 }
             });
 
 
             // colorize nodes, and add mouse candy.
             if (!disableSvgHover) {
-            gnodes
-                .on('mouseenter', node_mouseenter)
-                .on('mouseleave', node_mouseleave)
-                .on('mouseover', node_mouseover)
-                .on('mouseout', node_mouseout)
-                .on('mousedown', node_mousedown);
+                gnodes
+                    .on('mouseenter', node_mouseenter)
+                    .on('mouseleave', node_mouseleave)
+                    .on('mouseover', node_mouseover)
+                    .on('mouseout', node_mouseout)
+                    .on('mousedown', node_mousedown);
 
             }
 
