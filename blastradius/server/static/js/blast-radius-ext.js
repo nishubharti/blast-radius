@@ -1,7 +1,6 @@
 //
 // terraform-graph.js 
 //
-
 // enumerate the various kinds of edges that Blast Radius understands.
 // only NORMAL and LAYOUT_SHOWN will show up in the <SVG>, but all four
 // will likely appear in the json representation.
@@ -92,7 +91,6 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
     var state     = br_state[selector];
     var container = d3.select(selector);
     
-
     // color assignments (resource_type : rgb) are stateful. If we use a new palette
     // every time the a subgraph is selected, the color assignments would differ and
     // become confusing.
@@ -160,23 +158,18 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
             }
 
             var svg = container.select('svg');
-            
             if (scale != null) {
                 svg.attr('height', scale).attr('width', scale);
             }
             
             
-            x=svg.selectAll('g.node');
-            console.log('g.node')
-            
             var render_plan = function(d) {
                 var plan_title = "plan info"
+                var yamlplan = json2yaml(d.plan)
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>'+(d.plan.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.plan, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>'+(d.plan.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlplan, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
                 ttip += child_html(d);
-                
-               
                 return ttip;
             }
 
@@ -184,7 +177,13 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 var cost_title = "cost info"
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.cost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                if (d.cost == "no cost available"){
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" +  JSON.stringify(d.cost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                }
+                else{
+                var yamlcost = json2yaml(d.cost)
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlcost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                }
                 ttip += child_html(d);
                 return ttip;
             }
@@ -193,8 +192,15 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 var policy_title = "controls info"
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.policy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
-                ttip += child_html(d);  
+                if (d.policy == "no policy available" )
+                {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.policy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                }
+                else{
+                var yamlpolicy = json2yaml(d.policy)
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlpolicy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                }  
+                ttip += child_html(d);
                 return ttip;
             }
 
@@ -202,7 +208,14 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 var time_title = "time info"
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.time, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                if (d.time == "no time estimation available" )
+                {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.time, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                
+                } else{
+                var yamltime = json2yaml(d.time)
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamltime, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                }
                 ttip += child_html(d);
                 return ttip;
             }
@@ -213,7 +226,7 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 ttip += title_html(d);
                 if (d.apply == "not yet applied" )
                 {
-                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + "not yet applied" + "</p><br>"+ '<hr style="background-color:black"/>');
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
                 }
                 else {
                     if( d.apply == null || d.apply.instances[0] == null)
@@ -222,7 +235,8 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                     }
                     else
                     {
-                         ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                        var yamlapply = json2yaml(d.apply)
+                        ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlapply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
                     }
                 }
                 ttip += child_html(d);
@@ -231,9 +245,10 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
 
             var render_tfstate = function(d) {
                 var title = "config info"
+                var yamlstate = json2yaml(d.definition)
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' +(d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.definition, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' +(d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlstate, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
                 ttip += child_html(d);
                 return ttip;
             }
@@ -285,7 +300,6 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 var children = [];
                 var edges   = edges_by_source[d.label];
                 var foot = "child nodes";
-                //console.log(edges);
                 children[children.length] = '<span class="title" style="background:' + color("#ffbf00") + ';">' + foot + '</span><br><br>';
                 for (i in edges) {
                     edge = edges[i];
@@ -404,7 +418,7 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
             // FIXME: these x,y,z-s pad out parameters I haven't looked up,
             // FIXME: but don't seem to be necessary for display
             var node_mousedown = function(d, x, y, z, no_tip_p) {
-                
+                console.log(d)
                 if ( sticky_node == d && click_count == 1) {
                    
                     highlight(d, true, true);
@@ -429,7 +443,6 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
             
             var plan_click = function(d) {
                openNav()
-
                var renderInfo = render_plan(d);
                $('div.test').html(renderInfo);
                
@@ -437,7 +450,6 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
 
             var tfstate_click = function(d) {
                 openNav()
- 
                 var renderInfo = render_tfstate(d);
                 $('div.test').html(renderInfo);
                 
@@ -445,7 +457,6 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
 
             var apply_click = function(d) {
                 openNav()
- 
                 var renderInfo = render_apply(d);
                 $('div.test').html(renderInfo);
                 
@@ -472,8 +483,7 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
              }
             
             function openNav() {
-                document.getElementById("mySidenav").style.width = "350px";
-                
+                document.getElementById("mySidenav").style.width = "350px";     
             }
     
             var highlight = function (d, downstream, upstream) {
@@ -512,27 +522,27 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
 
             }
 
-            var root = nodes['[root] root'];
+            // var root = nodes['[root] root'];
             node = svg.selectAll('g.node')
                    .data(svg_nodes, function (d) {
                         return (d && d.svg_id) || d3.select(this).attr("id");
                     })
+    
+            node.select('polygon:nth-of-type(2)')
+                    .on('click', node_mousedown)
+                    .style('fill', (function (d) {
+                        if (d){
+                            if (d.label == "[root] root") {
+                                return "#fff";
+                            }
+                            else {
+                            return "#AEC7E8";
+                            }
+                        }   
+                        else
+                            return '#000';
+                    }));
 
-            
-
-            
-            node.attr('fill', function (d) { return color(d.group); })
-                .select('polygon:nth-of-type(1)')
-                .on('click', node_mousedown)
-                .style('fill', (function (d) {
-                    if (d)
-                        return color(d.group);
-                        
-                    else
-                        return '#000';
-                }));
-
-            
             node.select('polygon:nth-of-type(3)')
                 .on('click',(function (d) { 
                     if (d.label == "[root] root") {
@@ -544,119 +554,124 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 }))
                 .style('fill', (function (d) {
                     if (d)
-                      
-                        return "#00CCFF";
-                        
+                      return '#fff';
                     else
                         return '#000';
                 }));
-
             
-            node.attr('fill', function (d) { return color(d.group); })
-                .select('polygon:nth-of-type(4)')
-                .on('click',(function (d) {
-                    
-                      if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
-                        return "";
-                        
-                      else
-                        return plan_click(d);
-                    
-                }))
-                .style('fill', (function (d) {
-                    if (d)
-                    {
-                    if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
-                        
-                        return "fff";
-                    else
-                       return "#ffff00";
-
-                    }
-                        
-                    else
-                        return '#000';
-                }));
-  
             
-            node.select('polygon:nth-of-type(5)')
-                .on('click',apply_click)
+            node.select('polygon:nth-of-type(8)')
+                .on('click',plan_click)
                 .style('fill', (function (d) {
-                    if (d)
-                    {
-                     if(d.apply == "not yet applied")
-                      {
-                          return "#808080";
-                      }
-                     else if(d.apply == null || d.apply.instances == null )
-                      {
-                        return "#ff0000";
-                      }
-                      else{
-                        return "#00ff40";
-                      }
+                    if (d){
+                    return '#fff';
+            
                     }   
                     else
                         return '#000';
                 }));
 
+            
+            
+            node.select('polygon:nth-of-type(9)')
+                .on('click',plan_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
 
-            node.select('polygon:nth-of-type(6)')
+            node.select('polygon:nth-of-type(11)')
                 .on('click',policy_click)
                 .style('fill', (function (d) {
                     if (d){
-                        if(d.policy == "no policy available" || d.policy == null)
-                        {
-                            return "#808080";
-                        }
-                        else if(d.policy != null && d.policy.decision == "failed" )
-                        {
-                            return "#ff0000";
-                        }
-                        else{
-                            return "#00ff40";
-                        }
+                    return '#fff';
             
                     }   
                     else
                         return '#000';
                 }));
 
+            node.select('polygon:nth-of-type(12)')
+                .on('click',policy_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
             
-            node.select('polygon:nth-of-type(7)')
+                    }   
+                    else
+                        return '#000';
+                }));
+
+                node.select('polygon:nth-of-type(14)')
                 .on('click',cost_click)
                 .style('fill', (function (d) {
                     if (d) {
-                        if(d.cost == "no cost available" || d.cost == null)
-                        {
-                          return "#808080";
-                        }
-                        else{
-                          return "#00ff40";
-                        }
+                    return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
+
+            node.select('polygon:nth-of-type(15)')
+                .on('click',cost_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                    return '#fff';
                     }
                     else
                         return '#000';
                 }));
             
             
-
-            node.select('polygon:nth-of-type(8)')
+            node.select('polygon:nth-of-type(17)')
                 .on('click',time_click)
                 .style('fill', (function (d) {
                     if (d) {
-                        if(d.time == "no time estimation available" || d.time == null)
-                        {
-                           return "#808080";
-                        }
-                        else{
-                            return "#00ff40";
-                        }
+                        return '#fff';
                     }
                     else
                         return '#000';
-            }));
+                }));
+            
+            node.select('polygon:nth-of-type(18)')
+                .on('click',time_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                        return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
                     
+
+               
+
+            node.select('polygon:nth-of-type(20)')
+                .on('click',apply_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+
+            node.select('polygon:nth-of-type(21)')
+                .on('click',apply_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+                
                     
             svg.selectAll('polygon')
                 .each(function(d, i) {
@@ -720,17 +735,26 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                 zout_btn.addEventListener('click', handle_zout);
 
                 var handle_refocus = function() {
-                    console.log('handle_refocus', sticky_node)
+                    console.log("here inside sticy node")
+                    console.log("value",sticky_node)
                     if (sticky_node) {
-                        
                         $(selector + ' svg').remove();
                         clear_listeners();
                         if (! state['params'])
                             state.params = {}
                         state.params.refocus = encodeURIComponent(sticky_node.label);
-
+                  
                         svg_url  = svg_url.split('?')[0];
                         json_url = json_url.split('?')[0];
+
+                        console.log("svg_url is",svg_url)
+                        console.log("json_url is",json_url)
+                        console.log("herer state params is******",state.params)
+                        console.log("selector value is",selector)
+                        console.log("build uri for svg params is",build_uri(svg_url, state.params))
+                        console.log("herer buld for json is ",build_uri(json_url, state.params))
+                        console.log("here sta eis*****",br_state)
+
 
                         blastradiusnew(selector, build_uri(svg_url, state.params), build_uri(json_url, state.params), br_state);
                     }
@@ -780,11 +804,14 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                         sticky_node = null;
                     }
                     click_count = 0;
-                    // console.log(d)
+                    console.log("node here is",nodes)
+                    console.log("herer d is",d)
+                    console.log("her node r d is",nodes[d])
                     node_mousedown(nodes[d], false, false, false, true);
                 }
 
                 if ( $(selector + '-search.selectized').length > 0 ) {
+                    console.log("inside if")
                     $(selector + '-search').selectize()[0].selectize.clear();
                     $(selector + '-search').selectize()[0].selectize.clearOptions();
                     for (var i in svg_nodes) {
@@ -798,7 +825,7 @@ blastradiusnew = function (selector, svg_url, json_url,br_state) {
                     // because of scoping, we need to change the onChange callback to the new version
                     // of select_node(), and delete the old callback associations.
                     $(selector + '-search').selectize()[0].selectize.settings.onChange = select_node;
-                    $(selector + '-search').selectize()[0].selectize.swapOnChange();
+                    // $(selector + '-search').selectize()[0].selectize.swapOnChange();
                 }
                 else {
                     $(selector + '-search').selectize({

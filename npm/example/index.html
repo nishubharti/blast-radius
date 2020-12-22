@@ -4,10 +4,14 @@
     <title>Blast Radius (Terraform Graph Tools)</title>
     <meta charset="utf-8">
     <script src="../dist/bundle.js"></script>
+    <script src="../static/images"></script>
+    <script src="../../blastradius/server/static/js/json2yaml.js"></script>
+
 
     <link rel="stylesheet" type="text/css" href="../../blastradius/server/static/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../../blastradius/server/static/css/selectize.css">
     <link rel="stylesheet" type="text/css" href="../../blastradius/server/static/css/style.css">
+
     <style>
         .navbar-nav>li {
             padding-left: 6px;
@@ -210,23 +214,21 @@
             }
         }
 
-        blastradius('#graph', './demo-1/demo-1.svg', './demo-1/demo-1.json', br_state);
+        blastradius('#graph', './demo-2/visualization.svg', './demo-2/visualization.json', br_state);
 
         var demo1 = document.querySelector('#demo-1');
         var demo2 = document.querySelector('#demo-2');
         var demo3 = document.querySelector('#demo-3');
         var demo4 = document.querySelector('#demo-4');
 
+
         demo1.addEventListener('click', function (event) {
-            // blastradius('#graph', './demo-1/demonew-1.svg', './demo-1/demo-1.json', br_state);
-            blastradius('#graph', './demo-1/demo-1.svg', './demo-1/demo-1.json', br_state);
+            blastradius('#graph', './demo-1/visualization.svg', './demo-1/visualization.json', br_state);
         })
         demo2.addEventListener('click', function (event) {
-            // blastradius('#graph', './demo-2/demonew-2.svg', './demo-2/demo-2.json', br_state);
             blastradius('#graph', './demo-2/visualization.svg', './demo-2/visualization.json', br_state);
         })
         demo3.addEventListener('click', function (event) {
-            // blastradius('#graph', './demo-3/demonew-3.svg', './demo-3/demo-3.json', br_state);
             blastradius('#graph', './demo-3/visualization.svg', './demo-3/visualization.json', br_state);
         })
         demo4.addEventListener('click', function (event) {

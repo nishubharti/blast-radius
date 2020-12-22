@@ -21,7 +21,9 @@ from blastradius.handlers.cost import Cost
 from blastradius.handlers.policy import Policy
 from blastradius.handlers.time import Time
 
-from blastradius.server.server import simple_graph, run_tf_graph
+# from blastradius.server.server import simple_graph, run_tf_graph
+from blastradius.server.server import simple_graph
+
 
 
 def main():
@@ -34,28 +36,16 @@ def main():
     output_group.add_argument('--json', action='store_const', const=True, default=False, help='print a json representation of the Terraform graph')
     output_group.add_argument('--dot', action='store_const', const=True, default=False, help='print the graphviz/dot representation of the Terraform graph')
     output_group.add_argument('--svg', action='store_const', const=True, default=False, help='print the svg representation of the Terraform graph')
-    output_group.add_argument('--newsvg', action='store_const', const=True, default=False, help='download the modified svg representation of the Terraform graph')
-    output_group.add_argument('--simplesvg', action='store_const', const=True, default=False, help='download the simple svg of modified svg representation of the Terraform graph')
+    output_group.add_argument('--svg-ext', action='store_const', const=True, default=False, help='download the simple svg of modified svg representation of the Terraform graph')
     output_group.add_argument('--serve', action='store_const', const=True, default=False, help='spins up a webserver with an interactive Terraform graph')
     
     parser.add_argument('--graph', type=str, help='`terraform graph` output (defaults to stdin)', default=sys.stdin)
     
-
-
     # options to limit, re-focus, and re-center presentation of larger graphs.
     constraint_group = parser.add_mutually_exclusive_group()
     constraint_group.add_argument('--module-depth', type=int, help='hide module details', required=False)
     constraint_group.add_argument('--focus', type=str, help='', required=False)
     constraint_group.add_argument('--center', type=str, help='', required=False)
-
-    # TODO present changes, and animate `terraform apply'
-    parser.add_argument('--plan', type=str, help='terraform plan output', default=None)
-    #parser.add_argument('--state', type=str, help='tfstate file', default=None)
-    parser.add_argument('--apply', type=str, help='terraform apply log', default=None)
-    parser.add_argument('--cost', type=str, help='resource cost json', default=None)
-    parser.add_argument('--policy', type=str, help='resource policy json', default=None)
-    parser.add_argument('--time', type=str, help='resource time estimation json', default=None)
-
 
     args = parser.parse_args()
 
@@ -64,40 +54,14 @@ def main():
         app.run(host='0.0.0.0',port=args.port)
         sys.exit(0)
     
-    # argument for plan info
-    elif args.plan:
-        plan = Plan()
-        print(plan.json())
-    
-    # argument for apply info
-    elif args.apply:
-        apply = Apply()
-        print(apply.json())
-    
-    # argument for cost info
-    elif args.cost:
-        cost = Cost()
-        print(cost.json())
-
-    # argument for policy info
-    elif args.policy:
-        policy = Policy()
-        print(policy.json())
-
-    # argument for policy info
-    elif args.time:
-        time = Time()
-        print(time.json())
-    
-    elif args.json or args.dot or args.svg or args.newsvg or args.simplesvg:
+    elif args.json or args.dot or args.svg or args.svg_ext:
         if args.graph is sys.stdin:
             dot = DotGraph('','', file_contents=sys.stdin.read())
-        elif args.newsvg:                      #for extended blasradius svg
-            dot = DotGraph('ext', args.graph)
-        elif args.simplesvg:                      #for simple blasradius svg
+        elif args.svg_ext: 
+            #for simple blasradius svg
             dot = DotGraph('ext','',file_contents=simple_graph())
         else:
-            dot = DotGraph('',args.graph)
+            dot = DotGraph('','',file_contents=simple_graph())
 
         # we might not want to show every node in the depedency graph
         # specifying --module-depth is an easy way to limit detail
@@ -120,31 +84,22 @@ def main():
                 parser.print_help()
                 sys.exit(1)
             dot.focus(f_node)
-
+        
         if args.json:
             tf = Terraform(args.directory)
             for node in dot.nodes:
                 node.definition = tf.get_def(node)
-        
-        if args.json:
             f = open("visualization.json", "a")
             f.write(dot.json())
             f.close()
-            # print(dot.json())
         elif args.dot:
             print(dot.dot())
         elif args.svg:
             print(dot.svg())
-        elif args.newsvg:
-            f = open("visualization_new.svg", "a")
-            f.write(dot.svg())
-            f.close()
-            # print(dot.svg())
-        elif args.simplesvg:
+        elif args.svg_ext:
             f = open("visualization.svg", "a")
             f.write(dot.svg())
             f.close()
-            # print(dot.svg())
     else:
         parser.print_help()
 

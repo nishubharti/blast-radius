@@ -6,12 +6,8 @@ import subprocess
 from collections import OrderedDict
 from collections import deque
 
-
 import sys
 import graphviz
-import jinja2
-
-
 
 # 3rd party libraries 
 import jinja2
@@ -430,7 +426,7 @@ class DotGraph(Graph):
     #
     # Formatting templates.
     #
-
+    
     dot_template_str_ext = """
     digraph {
     compound = "true"
@@ -453,31 +449,47 @@ class DotGraph(Graph):
                             </TABLE>>];
                         {% else %}
                             "{{node.label}}" [ shape=none, margin=0, id={{node.svg_id}} label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-                                <TR><TD colspan="3">{{node.type}}</TD></TR>
-                                <TR><TD colspan="3">{{node.resource_name}}</TD></TR>
-                                {% if node.plan.change %}
-                                    {% if node.plan.change.actions[0] == "create" %}
-                                        
-                                        <TR><TD>config</TD><TD>+</TD><TD>apply</TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "delete" and node.plan.change.actions[1] == "create"%}
-                                        <TR><TD>config</TD><TD>-/+</TD><TD></TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "delete"%}
-                                        <TR><TD>config</TD><TD>-</TD><TD">apply</TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "update"%}
-                                        <TR><TD>config</TD><TD>#</TD><TD>apply</TD></TR>
-                                    {% else %}
-                                        <TR><TD>config</TD><TD></TD><TD>apply</TD></TR>
-                                    {% endif %}
-                                {% else %}
-                                    <TR><TD>state</TD><TD></TD><TD></TD></TR>
-                                {% endif %}
-                            <TR><TD colspan="3">{{ "%-20s"|format("controls") }} </TD></TR>
-                            {% if node.cost == "no cost available" %}
-                                <TR><TD colspan="3">{{ "%-20s"|format("N/A") }}</TD></TR>
+                            {% if "ibm_cos" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/COS_Icon.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% elif "ibm_kp" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/kp.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% elif "ibm_container" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/kubernetes.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% elif "ibm_is" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/vpc.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
                             {% else %}
-                                <TR><TD colspan="3">{{ "%-20s"|format(node.cost.lineitemtotal) }}</TD></TR>
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/resource.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+
                             {% endif %}
-                            <TR><TD colspan="3">{{ "%-20s"|format(node.time.TimeEstimation) }}</TD></TR></TABLE>>];
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/instance.png"/></TD><TD>{{ "%-20s"|format(node.resource_name) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/plan.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform plan") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/correct.png"/></TD></TR>
+                            {% if node.policy == "no policy available" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/policy.png"/></TD><TD>{{ "%-30s"|format("&#62;_controls verify") }} </TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/hourglass.png"/></TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/policy.png"/></TD><TD>{{ "%-30s"|format("&#62;_controls verify") }} </TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% endif %}
+                            {% if node.cost == "no cost available" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/cost.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate cost") }}</TD><TD fixedsize="true" width="50" height="20">{{ "%-10s"|format("N/A") }}</TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/cost.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate cost") }}</TD><TD fixedsize="true" width="50" height="20">{{ "%-10s"|format(node.cost.lineitemtotal) }}</TD></TR>
+                            {% endif %}
+                            {% if node.time == "no time estimation available" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/time.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate time") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/hourglass.png"/></TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/time.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate time") }}</TD><TD fixedsize="true" width="50" height="20">{{ "%-10s"|format(node.time.TimeEstimation) }}</TD></TR>
+                            {% endif %}
+                            {% if node.apply == "not yet applied" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/hourglass.png"/></TD></TR>
+                            {% elif not node.apply %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/error.png"/></TD></TR>
+                            {% elif node.apply %}
+                                {% if node.apply.instances[0] == null %}
+                                    <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/error.png"/></TD></TR>
+                                {% else %}
+                                    <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/correct.png"/></TD></TR>
+                                {% endif %}
+                            {% endif %}
+                                </TABLE>>];
                         {% endif %}
                     {% else %}
                        {% if totalcost != "" or totaltime != "" %}
@@ -527,6 +539,12 @@ class DotGraph(Graph):
         {% endfor %}
 }
 """
+
+                            # <TR><TD colspan="3">{{ "%-20s"|format(node.time.TimeEstimation) }}</TD></TR></TABLE>>];
+                            #                                 <TR><TD colspan="3"><img src="{{ resized_img_src('confused.jpeg', width=50) }}"></TD></TR></TABLE>>];
+   #<TR><TD colspan="3" fixedsize="true" width="100" height="20"><IMG SRC= "time.png"/></TD></TR></TABLE>>];
+#                             <TR><TD colspan="3"><img src="{{url_for('static', filename='confused.jpeg')}} /></TD></TR></TABLE>>];
+
 
     dot_template_str = """
     digraph {
@@ -586,6 +604,7 @@ class DotGraph(Graph):
 """
     dot_template = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(dot_template_str)
     dot_template_ext = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(dot_template_str_ext)
+    # dot_template_ext.globals['resized_img_src'] = resized_img_src
         
 
 class Format:

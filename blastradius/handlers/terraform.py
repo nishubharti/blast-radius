@@ -88,36 +88,34 @@ class Terraform:
             # 'meta'         : lambda x: '',
             # 'provisioner'  : lambda x: '',
             # ''             : lambda x: '' }
-            types = {'output','data','provider'}
+            # types = {'output','data','provider'}
 
-            if node.type in types:
-                for n in self.config[node.type]:
-                    if node.resource_name in n:
-                        return n[node.resource_name]
+#for simple graphs we do not need these information in json 
 
-                return ''
+            # if node.type in types:
+            #     for n in self.config[node.type]:
+            #         if node.resource_name in n:
+            #             return n[node.resource_name]
+
+            #     return ''
             
-            if node.type == 'var':
-                for n in self.config['variable']:
-                    if node.resource_name in n:
-                        return n[node.resource_name]
+            # if node.type == 'var':
+            #     for n in self.config['variable']:
+            #         if node.resource_name in n:
+            #             return n[node.resource_name]
 
-                return ''
+            #     return ''
 
             # resources are a little different _many_ possible types,
             # nested within the 'resource' field.
-            else:
+            # else:
                 
-                for n in self.config['resource']:
-                    if node.type in n:
-                        if node.resource_name in n[node.type]:
-                            return n[node.type][node.resource_name]
+            for n in self.config['resource']:
+                if node.type in n:
+                    if node.resource_name in n[node.type]:
+                        return n[node.type][node.resource_name]
                 
-                return ''
-
-
-                #     print("node type is",node.type)
-                #     print("here i is******",i[node.type])                     
+            return ''
 
                 # return self.config['resource'][0][node.type][node.resource_name]
         except:

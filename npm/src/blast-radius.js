@@ -103,7 +103,7 @@ Queue.prototype.dequeue = function () {
 // Takes a unique selector, e.g. "#demo-1", and 
 // appends svg xml from svg_url, and takes graph
 // info from json_url to highlight/annotate it.
-var blastradius = function (selector, svg_url, json_url, br_state) {
+var blastradius = function (selector, svg_url, json_url, br_state) { 
 
     var errorFunc = function (error) {
         console.log('XML Error', error);
@@ -111,6 +111,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
     // TODO: remove scale.
     var scale = null
+
 
     // mainly for d3-tips
     var class_selector = '.' + selector.slice(1, selector.length);
@@ -134,13 +135,12 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
     // color assignments (resource_type : rgb) are stateful. If we use a new palette
     // every time the a subgraph is selected, the color assignments would differ and
     // become confusing.
-    // var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
     var color = (state['color'] ? d3.scaleOrdinal(state['color']) : d3.scaleOrdinal(d3['schemeCategory20']));
     var disableSvgZoom = state['disableSvgZoom'] ? state['disableSvgZoom'] : false;
     var disableTooltip = state['disableTooltip'] ? state['disableTooltip'] : false;
     var disableSvgHover = state['disableSvgHover'] ? state['disableSvgHover'] : false;
     var errorCallback = state['errorCallback'] ? state['errorCallback'] : errorFunc;
-
+    
     // 1st pull down the svg, and append it to the DOM as a child
     // of our selector. If added as <img src="x.svg">, we wouldn't
     // be able to manipulate x.svg with d3.js, or other DOM fns. 
@@ -151,8 +151,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             if (errorCallback) errorCallback(error);
             return;
         } else {
-            container.node()
-                .appendChild(document.importNode(xml.documentElement, true));
+        container.node()
+          .appendChild(document.importNode(xml.documentElement, true));
         }
 
         // remove <title>s in svg; graphviz leaves these here and they
@@ -169,13 +169,18 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
         // Obtain the graph description. Doing this within the
         // d3.xml success callback, to guaruntee the svg/xml
         // has loaded.
+        console.log("herer json url is", json_url)
+        console.log("herer svg url is", svg_url)
+
         d3.json(json_url, function (error, data) {
+            console.log("herer data is is", data )
             var edges = data.edges;
             var svg_nodes = [];
             var nodes = {};
+
             data.nodes.forEach(function (node) {
                 if (!(node.type in resource_groups))
-                    // console.log(node.group, node.type)
+                    console.log(node.type)
                     if (node.label == '[root] root') { // FIXME: w/ tf 0.11.2, resource_name not set by server.
                         node.resource_name = 'root';
                     }
@@ -237,12 +242,15 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             // returns <div> element representinga  node's title and module namespace.
-            var title_html = function (d) {
+            var title_html = function(d) {
                 var node = d;
-                var title = ['<div class="header">']
+                var title = [ '<div class="header">']
+                var head = "resource name"
+                title[title.length] = '<span class="title" style="background:' + color("#ffbf00") + ';">' + head + '</span><br><br>';
                 if (node.modules.length <= 1 && node.modules[0] == 'root') {
                     title[title.length] = '<span class="title" style="background:' + color(node.group) + ';">' + node.type + '</span>';
                     title[title.length] = '<span class="title" style="background:' + color(node.group) + ';">' + node.resource_name + '</span>';
+                    
                 }
                 else {
                     for (var i in node.modules) {
@@ -277,9 +285,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             // returns <span> elements representing a node's direct children 
-            var child_html = function (d) {
+            var child_html = function(d) {
                 var children = [];
-                var edges = edges_by_source[d.label];
+                var edges   = edges_by_source[d.label];
+                var foot = "child nodes";
+                children[children.length] = '<span class="title" style="background:' + color("#ffbf00") + ';">' + foot + '</span><br><br>';
                 for (i in edges) {
                     var edge = edges[i];
                     if (edge.edge_type == edge_types.NORMAL || edge.edge_type == edge_types.HIDDEN) {
@@ -303,22 +313,33 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
             var tfstate_html = function (d) {
                 var title = "config info"
-                var ttip = '';
+                var yamlstate = json2yaml(d.definition)
+                var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' + (d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.definition, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' +(d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlstate, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
                 ttip += child_html(d);
                 return ttip;
             }
 
+
             var apply_html = function (d) {
                 var apply_title = "apply info"
-                var ttip = '';
+                var ttip = ''; 
                 ttip += title_html(d);
-                if (d.apply == null) {
-                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>' + ("<p class='explain'>" + "resource apply failed" + "</p><br>" + '<hr style="background-color:black"/>');
+                if (d.apply == "not yet applied" )
+                {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
                 }
                 else {
-                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>' + (d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.apply, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                    if( d.apply == null || d.apply.instances[0] == null)
+                    {
+                        ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+("<p class='explain'>" + "resource apply failed" + "</p><br>"+ '<hr style="background-color:black"/>');
+                    }
+                    else
+                    {
+                        var yamlapply = json2yaml(d.apply)
+                        ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlapply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                    }
                 }
                 ttip += child_html(d);
                 return ttip;
@@ -326,18 +347,25 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
             var plan_html = function (d) {
                 var plan_title = "plan info"
-                var ttip = '';
+                var yamlplan = json2yaml(d.plan)
+                var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>' + (d.plan.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.plan, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>'+(d.plan.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlplan, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
                 ttip += child_html(d);
                 return ttip;
             }
 
             var cost_html = function (d) {
                 var cost_title = "cost info"
-                var ttip = '';
+                var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>' + (d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.cost, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                if (d.cost == "no cost available"){
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" +  JSON.stringify(d.cost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                }
+                else{
+                var yamlcost = json2yaml(d.cost)
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlcost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                }
                 ttip += child_html(d);
                 return ttip;
             }
@@ -346,16 +374,30 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var time_title = "time info"
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.time, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                if (d.time == "no time estimation available" )
+                {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.time, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                
+                } else{
+                var yamltime = json2yaml(d.time)
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamltime, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                }
                 ttip += child_html(d);
                 return ttip;
             }
 
             var policy_html = function (d) {
                 var policy_title = "controls info"
-                var ttip = '';
+                var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>' + (d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.policy, replacer, 2) + "</p><br>" + '<hr style="background-color:black"/>');
+                if (d.policy == "no policy available" )
+                {
+                    ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(d.policy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                }
+                else{
+                var yamlpolicy = json2yaml(d.policy)
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlpolicy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                }  
                 ttip += child_html(d);
                 return ttip;
             }
@@ -476,11 +518,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     sticky_node = d;
                     click_count = 1;
                     highlight(d, true, false);
-                    if (no_tip_p === undefined) {
-                        tip && tip.show(d, this)
-                            .direction(tipdir(d))
-                            .offset(tipoff(d));
-                    }
+                    // if (no_tip_p === undefined) {
+                    //     tip && tip.show(d, this)
+                    //         .direction(tipdir(d))
+                    //         .offset(tipoff(d));
+                    // }
                 }
             }
 
@@ -524,7 +566,6 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
             var highlight = function (d, downstream, upstream) {
-
                 var highlight_nodes = [];
                 var highlight_edges = [];
 
@@ -589,165 +630,161 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
             }
 
 
+            var gnode = svg.selectAll('g.node')
+                       .data(svg_nodes, function (d) {
+                        return (d && d.svg_id) || d3.select(this).attr("id");
+                        })
 
-            var gnodes = svg.selectAll('g.node')
-                .data(svg_nodes, function (d) {
-                    return (d && d.svg_id) || d3.select(this).attr("id");
-                });
+            gnode.select('polygon:nth-of-type(2)')
+                    .on('click', node_mousedown)
+                    .style('fill', (function (d) {
+                        if (d){
+                            if (d.label == "[root] root") {
+                                return "#fff";
+                            }
+                            else {
+                            return "#AEC7E8";
+                            }
+                        }   
+                        else
+                            return '#000';
+                    }));
 
-            gnodes.each(function (d, i) {
+            gnode.select('polygon:nth-of-type(3)')
+                .on('click',(function (d) {
+                    if (d){ 
+                        if (d.label == "[root] root") {
+                            return "";
+                        }
+                        else {
+                            return tfstatenode_click(d);
+                        }
+                    }
+                }))
+                .style('fill', (function (d) {
+                    if (d){
+                      return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
+            
+            
+            gnode.select('polygon:nth-of-type(8)')
+                .on('click',plannode_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+
+            
+            
+            gnode.select('polygon:nth-of-type(9)')
+                .on('click',plannode_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+
+            gnode.select('polygon:nth-of-type(11)')
+                .on('click',policynode_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+
+            gnode.select('polygon:nth-of-type(12)')
+                .on('click',policynode_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+
+            gnode.select('polygon:nth-of-type(14)')
+                .on('click',costnode_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                    return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
+
+            gnode.select('polygon:nth-of-type(15)')
+                .on('click',costnode_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                    return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
+            
+            
+            gnode.select('polygon:nth-of-type(17)')
+                .on('click',timenode_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                        return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
+            
+            gnode.select('polygon:nth-of-type(18)')
+                .on('click',timenode_click)
+                .style('fill', (function (d) {
+                    if (d) {
+                        return '#fff';
+                    }
+                    else
+                        return '#000';
+                }));
+                     
+
+            gnode.select('polygon:nth-of-type(20)')
+                .on('click',applynode_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
+
+            gnode.select('polygon:nth-of-type(21)')
+                .on('click',applynode_click)
+                .style('fill', (function (d) {
+                    if (d){
+                    return '#fff';
+            
+                    }   
+                    else
+                        return '#000';
+                }));
                 
-                var _self = this;
-                var selectorMain, selectorTFState, selectorPlan, selectorApply,selectorCost,selectorPolicy,selectorTime;
-
-                var polysize = d3.select(_self).selectAll('polygon').size();
-                
-                if (polysize == 1) {
-                    selectorMain = "polygon:nth-last-of-type(1)";
-                }
-
-                if (polysize == 2) {
-                    selectorMain = "polygon:nth-last-of-type(2)";
-                }
-                // console.log(d.label)
-                if (polysize == 3) {
-                    selectorMain = "polygon:nth-last-of-type(3)";
-                    // selectorTFState = "polygon:nth-last-of-type(1)";
-                    
-                }
-
-
-                if (polysize == 8) {
-                    selectorMain = "polygon:nth-last-of-type(8)";
-                    selectorTFState = "polygon:nth-last-of-type(6)";
-                    selectorPlan = "polygon:nth-last-of-type(5)";
-                    selectorApply = "polygon:nth-last-of-type(4)";
-                    selectorPolicy = "polygon:nth-last-of-type(3)";
-                    selectorCost = "polygon:nth-last-of-type(2)";
-                    selectorTime = "polygon:nth-last-of-type(1)";
-                }
-
-                if (selectorMain !== undefined) {
-                    d3.select(_self)
-                        .select(selectorMain)
-                        .on('click', node_mousedown)
-                        .style('fill', (function (i) {
-                            return color(d.group);
-                        }));
-                }
-
-                if (selectorTFState !== undefined) {
-                    d3.select(_self)
-                        .select(selectorTFState)
-                        .on('click', tfstatenode_click)
-                        .style('fill', (function (i) {
-                            return "#00CCFF";
-                        }));
-                }
-
-                if (selectorPlan !== undefined) {
-                    d3.select(_self)
-                        .select(selectorPlan)
-                        .on('click', (function (d) {
-                            if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
-                                return "";
-                            else
-                                return plannode_click(d);
-                        }))
-                        .style('fill', (function (i) {
-                            if (d) {
-                                if (d.type == "var" || d.type == "provider" || d.type == "meta" || d.type == "output")
-                                    return "fff";
-                                else
-                                    return "#ffff00";
-                            }
-                            else
-                                return '#000';
-                        }));
-                }
-
-                if (!selectorApply !== undefined) {
-                    d3.select(_self)
-                        .select(selectorApply)
-                        .on('click', applynode_click)
-                        .style('fill', (function (i) {
-                            if (d) {
-                                if (d.apply == null) {
-                                    return "#ff0000";
-                                }
-                                else if (d.apply == "not yet applied") {
-                                    return "#708090";
-                                }
-                                else
-                                    return "#00ff40";
-                            }
-                            else
-                                return '#000';
-                        }));
-                }
-
-                if (!selectorCost !== undefined) {
-                    d3.select(_self)
-                        .select(selectorCost)
-                        .on('click', costnode_click)
-                        .style('fill', (function (d) {
-                            if (d) {
-                                if (d.cost == "no cost available" || d.cost == null) {
-                                    return "#808080";
-                                }
-                                else
-                                    return "#00ff40";
-                            }
-                            else
-                                return '#000';
-                        }));
-                }
-
-                if (!selectorTime !== undefined) {
-                    d3.select(_self)
-                        .select(selectorTime)
-                        .on('click',timenode_click)
-                        .style('fill', (function (d) {
-                            if (d){
-                                if(d.time == "no time estimation available" || d.time == null)
-                                {
-                                    return "#808080";
-                                }
-                                else
-                                    return "#00ff40";
-                            }
-                            else
-                                return '#000';
-                        }));
-                }
-
-                if (!selectorPolicy !== undefined) {
-                    d3.select(_self)
-                        .select(selectorPolicy)
-                        .on('click', policynode_click)
-                        .style('fill', (function (d) {
-                            if (d) {
-                                if (d.policy == "no policy available" || d.policy == null) {
-                                    return "#808080";
-                                }
-                                else if (d.policy != null && d.policy.decision == "failed") {
-                                    return "#ff0000";
-                                }
-                                else {
-                                    return "#00ff40";
-                                }
-
-                            }
-                            else
-                                return '#000';
-                        }));
-                }
-            });
 
 
             // colorize nodes, and add mouse candy.
             if (!disableSvgHover) {
-                gnodes
+                node
                     .on('mouseenter', node_mouseenter)
                     .on('mouseleave', node_mouseleave)
                     .on('mouseover', node_mouseover)
@@ -775,9 +812,9 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 .data(svg_nodes, function (d) {
                     return (d && d.svg_id) || d3.select(this).attr("id");
                 })
-                .on('mouseover', node_mouseover)
-                .on('mouseout', node_mouseout)
-                .on('mousedown', node_mousedown)
+                // .on('mouseover', node_mouseover)
+                // .on('mouseout', node_mouseout)
+                // .on('mousedown', node_mousedown)
                 .select('polygon')
                 .attr('fill', function (d) { return color(d.group); })
                 .style('fill', (function (d) {
@@ -793,6 +830,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
             // blast-radius --serve mode stuff. check for a zoom-in button as a proxy
             // for whether other facilities will be available.
+
             if (d3.select(selector + '-zoom-in')) {
                 var zin_btn = document.querySelector(selector + '-zoom-in');
                 var zout_btn = document.querySelector(selector + '-zoom-out');
@@ -852,7 +890,11 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 }
 
                 // this feature is disabled for embedded images on static sites...
-                refocus_btn && refocus_btn.addEventListener('click', handle_refocus);
+                if (refocus_btn) {
+                    console.log('refocus_btn.addEventListener');
+                    refocus_btn.addEventListener('click', handle_refocus);
+                }
+                // refocus_btn && refocus_btn.addEventListener('click', handle_refocus);
 
                 var handle_download = function () {
                     // svg extraction and download as data url borrowed from
@@ -870,14 +912,12 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 download_btn && download_btn.addEventListener('click', handle_download);
 
                 var clear_listeners = function () {
-                    zin_btn && zin_btn.removeEventListener('click', handle_zin);
-                    zout_btn && zout_btn.removeEventListener('click', handle_zout);
-                    refocus_btn && refocus_btn.removeEventListener('click', handle_refocus);
-                    download_btn && download_btn.removeEventListener('click', handle_download);
+                    zin_btn.removeEventListener('click', handle_zin);
+                    zout_btn.removeEventListener('click', handle_zout);
+                    refocus_btn.removeEventListener('click', handle_refocus);
+                    download_btn.removeEventListener('click', handle_download);
                     panzoom = null;
-
-                    //
-                    tip && tip.hide();
+                    // tip && tip.hide();
                 }
 
                 var render_searchbox_node = function (d) {
@@ -885,6 +925,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 }
 
                 var select_node = function (d) {
+                    console.log("nodes is", nodes)
                     if (d === undefined || d.length == 0) {
                         return true;
                     }
@@ -895,26 +936,31 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                         sticky_node = null;
                     }
                     click_count = 0;
+                    console.log("here nodes[d] is", nodes[d])
                     node_mousedown(nodes[d], false, false, false, true);
                 }
-                var selectized = null;
-                if ($(selector + '-search.selectized').length > 0) {
+                // var selectized = null;
+                if ( $(selector + '-search.selectized').length > 0 ) {
+                    console.log("inside if")
                     $(selector + '-search').selectize()[0].selectize.clear();
                     $(selector + '-search').selectize()[0].selectize.clearOptions();
                     for (var i in svg_nodes) {
+                        
                         $(selector + '-search').selectize()[0].selectize.addOption(svg_nodes[i]);
                     }
-                    if (state.params && state.params.refocus && state.params.refocus.length > 0) {
+                    if( state && state.params && state.params.refocus && state.params.refocus.length > 0  ) {
                         var n = state.params.refocus;
                     }
-
+                    console.log(svg_nodes);
                     // because of scoping, we need to change the onChange callback to the new version
                     // of select_node(), and delete the old callback associations.
                     $(selector + '-search').selectize()[0].selectize.settings.onChange = select_node;
                     // $(selector + '-search').selectize()[0].selectize.swapOnChange();
                 }
                 else {
-                    selectized = $(selector + '-search').selectize({
+                    console.log("svg nodes in else here",svg_nodes);
+                    $(".selectize-control").empty();
+                    $(selector + '-search').selectize({
                         valueField: 'label',
                         searchField: ['label'],
                         maxItems: 1,
@@ -924,7 +970,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                         onChange: select_node,
                         render: {
                             option: render_searchbox_node,
-                            item: render_searchbox_node
+                            item : render_searchbox_node
                         },
                         options: svg_nodes
                     });
@@ -936,8 +982,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
 
             } // end if(interactive)
         });   // end json success callback
-    });       // end svg scuccess callback
+    }); // end svg scuccess callback
 
-}             // end blastradius()
+}  // end blastradius()
 
 export default blastradius;
