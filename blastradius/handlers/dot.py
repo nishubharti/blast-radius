@@ -540,11 +540,6 @@ class DotGraph(Graph):
 }
 """
 
-                            # <TR><TD colspan="3">{{ "%-20s"|format(node.time.TimeEstimation) }}</TD></TR></TABLE>>];
-                            #                                 <TR><TD colspan="3"><img src="{{ resized_img_src('confused.jpeg', width=50) }}"></TD></TR></TABLE>>];
-   #<TR><TD colspan="3" fixedsize="true" width="100" height="20"><IMG SRC= "time.png"/></TD></TR></TABLE>>];
-#                             <TR><TD colspan="3"><img src="{{url_for('static', filename='confused.jpeg')}} /></TD></TR></TABLE>>];
-
 
     dot_template_str = """
     digraph {
@@ -604,7 +599,6 @@ class DotGraph(Graph):
 """
     dot_template = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(dot_template_str)
     dot_template_ext = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(dot_template_str_ext)
-    # dot_template_ext.globals['resized_img_src'] = resized_img_src
         
 
 class Format:

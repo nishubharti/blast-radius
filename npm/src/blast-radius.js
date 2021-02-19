@@ -316,7 +316,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var yamlstate = json2yaml(d.definition)
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' +(d.definition.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlstate, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + title + '</span><br><br>' +(d.definition.length == 0 ? '' : "<p class='explain'>" + yamlstate + "</p><br>"+ '<hr style="background-color:black"/>');
                 ttip += child_html(d);
                 return ttip;
             }
@@ -338,7 +338,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     else
                     {
                         var yamlapply = json2yaml(d.apply)
-                        ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlapply, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                        ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + apply_title + '</span><br><br>'+(d.apply.length == 0 ? '' : "<p class='explain'>" + yamlapply + "</p><br>"+ '<hr style="background-color:black"/>');
                     }
                 }
                 ttip += child_html(d);
@@ -350,7 +350,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 var yamlplan = json2yaml(d.plan)
                 var ttip = ''; 
                 ttip += title_html(d);
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>'+(d.plan.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlplan, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + plan_title + '</span><br><br>'+(d.plan.length == 0 ? '' : "<p class='explain'>" + yamlplan + "</p><br>"+ '<hr style="background-color:black"/>') ;
                 ttip += child_html(d);
                 return ttip;
             }
@@ -364,7 +364,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 }
                 else{
                 var yamlcost = json2yaml(d.cost)
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlcost, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + cost_title + '</span><br><br>'+(d.cost.length == 0 ? '' : "<p class='explain'>" + yamlcost + "</p><br>"+ '<hr style="background-color:black"/>') ;
                 }
                 ttip += child_html(d);
                 return ttip;
@@ -380,7 +380,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 
                 } else{
                 var yamltime = json2yaml(d.time)
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamltime, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>') ;
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + time_title + '</span><br><br>'+(d.time.length == 0 ? '' : "<p class='explain'>" + yamltime + "</p><br>"+ '<hr style="background-color:black"/>') ;
                 }
                 ttip += child_html(d);
                 return ttip;
@@ -396,7 +396,7 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                 }
                 else{
                 var yamlpolicy = json2yaml(d.policy)
-                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + JSON.stringify(yamlpolicy, replacer, 2) + "</p><br>"+ '<hr style="background-color:black"/>');
+                ttip += '<hr style="background-color:black"/><br><span class="title" style="background:' + color("#ffbf00") + ';">' + policy_title + '</span><br><br>'+(d.policy.length == 0 ? '' : "<p class='explain'>" + yamlpolicy + "</p><br>"+ '<hr style="background-color:black"/>');
                 }  
                 ttip += child_html(d);
                 return ttip;
@@ -940,6 +940,8 @@ var blastradius = function (selector, svg_url, json_url, br_state) {
                     node_mousedown(nodes[d], false, false, false, true);
                 }
                 // var selectized = null;
+                // Destroy the selectize to reset svg_nodes
+                $(selector + '-search').selectize()[0].selectize.destroy();
                 if ( $(selector + '-search.selectized').length > 0 ) {
                     console.log("inside if")
                     $(selector + '-search').selectize()[0].selectize.clear();

@@ -24,8 +24,7 @@ from blastradius.util import which
 from blastradius.graph import Node, Edge, Counter, Graph
 
 app = Flask(__name__)
-# images = Images(app)
-# app.jinja_env.globals.update(resized_img_src=resized_img_src)
+
 
 
 
