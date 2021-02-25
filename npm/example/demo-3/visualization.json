@@ -1,0 +1,332 @@
+{
+    "edges": [
+        {
+            "edge_type": 1,
+            "source": "[root] ibm_cis.web_domain",
+            "svg_id": "edge_0",
+            "target": "[root] ibm_resource_group.web_group"
+        },
+        {
+            "edge_type": 1,
+            "source": "[root] ibm_cis_domain.web_domain",
+            "svg_id": "edge_1",
+            "target": "[root] ibm_cis.web_domain"
+        },
+        {
+            "edge_type": 1,
+            "source": "[root] ibm_cis_domain_settings.web_domain",
+            "svg_id": "edge_2",
+            "target": "[root] ibm_cis_domain.web_domain"
+        },
+        {
+            "edge_type": 1,
+            "source": "[root] root",
+            "svg_id": "edge_3",
+            "target": "[root] ibm_cis_domain_settings.web_domain"
+        }
+    ],
+    "nodes": [
+        {
+            "apply": "not yet applied",
+            "cluster": "root",
+            "cost": "no cost available",
+            "definition": {
+                "location": [
+                    "global"
+                ],
+                "name": [
+                    "web_domain"
+                ],
+                "plan": [
+                    "standard"
+                ],
+                "resource_group_id": [
+                    "${ibm_resource_group.web_group.id}"
+                ]
+            },
+            "group": 20000,
+            "label": "[root] ibm_cis.web_domain",
+            "module": "root",
+            "modules": [
+                "root"
+            ],
+            "plan": {
+                "address": "ibm_cis.web_domain",
+                "change": {
+                    "actions": [
+                        "create"
+                    ],
+                    "after": {
+                        "location": "global",
+                        "name": "web_domain",
+                        "parameters": null,
+                        "plan": "standard",
+                        "tags": null,
+                        "timeouts": null
+                    },
+                    "after_unknown": {
+                        "guid": true,
+                        "id": true,
+                        "resource_controller_url": true,
+                        "resource_crn": true,
+                        "resource_group_id": true,
+                        "resource_group_name": true,
+                        "resource_name": true,
+                        "resource_status": true,
+                        "service": true,
+                        "status": true
+                    },
+                    "before": null
+                },
+                "mode": "managed",
+                "name": "web_domain",
+                "provider_name": "ibm",
+                "schema_version": 0,
+                "type": "ibm_cis",
+                "values": {
+                    "location": "global",
+                    "name": "web_domain",
+                    "parameters": null,
+                    "plan": "standard",
+                    "tags": null,
+                    "timeouts": null
+                }
+            },
+            "policy": "no policy available",
+            "resource_name": "web_domain",
+            "simple_name": "ibm_cis.web_domain",
+            "svg_id": "node_0",
+            "time": "no time estimation available",
+            "type": "ibm_cis"
+        },
+        {
+            "apply": "not yet applied",
+            "cluster": "root",
+            "cost": "no cost available",
+            "definition": {
+                "cis_id": [
+                    "${ibm_cis.web_domain.id}"
+                ],
+                "domain": [
+                    "${var.domain}"
+                ]
+            },
+            "group": 20000,
+            "label": "[root] ibm_cis_domain.web_domain",
+            "module": "root",
+            "modules": [
+                "root"
+            ],
+            "plan": {
+                "address": "ibm_cis_domain.web_domain",
+                "change": {
+                    "actions": [
+                        "create"
+                    ],
+                    "after": {
+                        "domain": "example.com"
+                    },
+                    "after_unknown": {
+                        "cis_id": true,
+                        "id": true,
+                        "name_servers": true,
+                        "original_name_servers": true,
+                        "paused": true,
+                        "status": true
+                    },
+                    "before": null
+                },
+                "mode": "managed",
+                "name": "web_domain",
+                "provider_name": "ibm",
+                "schema_version": 0,
+                "type": "ibm_cis_domain",
+                "values": {
+                    "domain": "example.com"
+                }
+            },
+            "policy": "no policy available",
+            "resource_name": "web_domain",
+            "simple_name": "ibm_cis_domain.web_domain",
+            "svg_id": "node_1",
+            "time": "no time estimation available",
+            "type": "ibm_cis_domain"
+        },
+        {
+            "apply": "not yet applied",
+            "cluster": "root",
+            "cost": "no cost available",
+            "definition": {
+                "cis_id": [
+                    "${ibm_cis.web_domain.id}"
+                ],
+                "domain_id": [
+                    "${ibm_cis_domain.web_domain.id}"
+                ],
+                "min_tls_version": [
+                    "1.2"
+                ],
+                "ssl": [
+                    "flexible"
+                ],
+                "waf": [
+                    "on"
+                ]
+            },
+            "group": 20000,
+            "label": "[root] ibm_cis_domain_settings.web_domain",
+            "module": "root",
+            "modules": [
+                "root"
+            ],
+            "plan": {
+                "address": "ibm_cis_domain_settings.web_domain",
+                "change": {
+                    "actions": [
+                        "create"
+                    ],
+                    "after": {
+                        "min_tls_version": "1.2",
+                        "ssl": "flexible",
+                        "waf": "on"
+                    },
+                    "after_unknown": {
+                        "always_use_https": true,
+                        "automatic_https_rewrites": true,
+                        "brotli": true,
+                        "browser_check": true,
+                        "certificate_status": true,
+                        "cis_id": true,
+                        "cname_flattening": true,
+                        "domain_id": true,
+                        "hotlink_protection": true,
+                        "http2": true,
+                        "id": true,
+                        "image_load_optimization": true,
+                        "image_size_optimization": true,
+                        "ip_geolocation": true,
+                        "ipv6": true,
+                        "opportunistic_encryption": true,
+                        "origin_error_page_pass_thru": true,
+                        "prefetch_preload": true,
+                        "pseudo_ipv4": true,
+                        "response_buffering": true,
+                        "script_load_optimization": true,
+                        "server_side_exclude": true,
+                        "tls_client_auth": true,
+                        "true_client_ip_header": true,
+                        "websockets": true
+                    },
+                    "before": null
+                },
+                "mode": "managed",
+                "name": "web_domain",
+                "provider_name": "ibm",
+                "schema_version": 0,
+                "type": "ibm_cis_domain_settings",
+                "values": {
+                    "min_tls_version": "1.2",
+                    "ssl": "flexible",
+                    "waf": "on"
+                }
+            },
+            "policy": {
+                "decision": "failed",
+                "evidences": [
+                    {
+                        "capsule": "SecurityCapsule",
+                        "control": "",
+                        "policy": "terraform.analysis.ibm.cis",
+                        "rules": [
+                            {
+                                "result": "failed",
+                                "rule": "cis_ssl_misconfigured",
+                                "severity": 5
+                            }
+                        ],
+                        "severity": 5
+                    }
+                ],
+                "name": "web_domain",
+                "type": "ibm_cis_domain_settings"
+            },
+            "resource_name": "web_domain",
+            "simple_name": "ibm_cis_domain_settings.web_domain",
+            "svg_id": "node_2",
+            "time": "no time estimation available",
+            "type": "ibm_cis_domain_settings"
+        },
+        {
+            "apply": "not yet applied",
+            "cluster": "root",
+            "cost": "no cost available",
+            "definition": {
+                "name": [
+                    "${var.resource_group}"
+                ]
+            },
+            "group": 20000,
+            "label": "[root] ibm_resource_group.web_group",
+            "module": "root",
+            "modules": [
+                "root"
+            ],
+            "plan": {
+                "address": "ibm_resource_group.web_group",
+                "change": {
+                    "actions": [
+                        "create"
+                    ],
+                    "after": {
+                        "name": "gilad-test-group",
+                        "quota_id": null,
+                        "tags": null
+                    },
+                    "after_unknown": {
+                        "default": true,
+                        "id": true,
+                        "state": true
+                    },
+                    "before": null
+                },
+                "mode": "managed",
+                "name": "web_group",
+                "provider_name": "ibm",
+                "schema_version": 0,
+                "type": "ibm_resource_group",
+                "values": {
+                    "name": "gilad-test-group",
+                    "quota_id": null,
+                    "tags": null
+                }
+            },
+            "policy": "no policy available",
+            "resource_name": "web_group",
+            "simple_name": "ibm_resource_group.web_group",
+            "svg_id": "node_3",
+            "time": "no time estimation available",
+            "type": "ibm_resource_group"
+        },
+        {
+            "apply": {},
+            "cluster": "root",
+            "cost": {},
+            "definition": "",
+            "group": 20000,
+            "label": "[root] root",
+            "module": "root",
+            "modules": [
+                "root"
+            ],
+            "plan": {},
+            "policy": {},
+            "resource_name": "",
+            "simple_name": "root",
+            "svg_id": "node_4",
+            "time": {},
+            "type": ""
+        }
+    ],
+    "totalcost": "",
+    "totaltime": ""
+}

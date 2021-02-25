@@ -6,12 +6,8 @@ import subprocess
 from collections import OrderedDict
 from collections import deque
 
-
 import sys
 import graphviz
-import jinja2
-
-
 
 # 3rd party libraries 
 import jinja2
@@ -22,6 +18,7 @@ from blastradius.util import OrderedSet
 from blastradius.handlers.plan import Plan
 from blastradius.handlers.apply import Apply
 from blastradius.handlers.cost import Cost
+from blastradius.handlers.time import Time
 from blastradius.handlers.policy import Policy
 
 
@@ -37,8 +34,10 @@ class DotGraph(Graph):
         self.apply = Apply()
         self.flag = flag
         self.cost = Cost()
+        self.time = Time()
         self.policy = Policy()
         self.totalcost = ""
+        self.totaltime = ""
 
         if file_contents:
             self.contents = file_contents
@@ -73,12 +72,10 @@ class DotGraph(Graph):
                             #process data source:
                             apply_data = None
                             plan_data = None
-                            policy_data = "no policy available"
-                            cost_data = "no cost available"
                             if ("not applied" in self.apply.apply_resource_info):
                                 apply_data = "not yet applied"
                                 plan_data = "data-source"
-                                self.nodes.append(DotNode(d['node'], plan_data, apply_data,"cost data to be displayed here","policy data to be displayed here",fmt=fmt ))
+                                self.nodes.append(DotNode(d['node'], plan_data, apply_data,"no cost data available","no policy data available","no time estimation available",fmt=fmt ))
                                 break
 
                             else:
@@ -86,7 +83,7 @@ class DotGraph(Graph):
                                     if i['type']+"."+i['name'] == res:
                                         apply_data = i
                                         plan_data = "data-source"
-                                        self.nodes.append(DotNode(d['node'], plan_data, apply_data,"cost data to be displayed here","policy data to be displayed here",fmt=fmt ))
+                                        self.nodes.append(DotNode(d['node'], plan_data, apply_data,"no cost data available","no policy data available","no time estimation available",fmt=fmt ))
                                         break
                         else:
                             if type == "provider":
@@ -94,13 +91,13 @@ class DotGraph(Graph):
                                 plan_data = {}
                                 policy_data = {}
                                 cost_data = {}
-                                self.nodes.append(DotNode(d['node'], plan_data, apply_data,"cost data to be displayed here","policy data to be displayed here",fmt=fmt ))
+                                self.nodes.append(DotNode(d['node'], plan_data, apply_data,"no cost data available","no policy data available","no time estimation available",fmt=fmt ))
                             else:
                                 apply_data = None
                                 plan_data = None
                                 policy_data = "no policy available"
                                 cost_data = "no cost available"
-                                total_cost = None
+                                time_data = "no time estimation available"
                                 if ("not applied" in self.apply.apply_resource_info):
                                     apply_data = "not yet applied"
                                 else:
@@ -138,9 +135,21 @@ class DotGraph(Graph):
                                                 val["lineitemtotal"] = str(val["lineitemtotal"]) + " "+ currency
                                                 cost_data = val
                                                 break
+                                
+                                if ("not available" in self.time.resource_time_info):
+                                    time_data = "no time estimation available"
+                                
+                                else:
+                                    for i in range(len(self.time.resource_time_info)):
+                                        self.totaltime = str(self.time.resource_time_info[i]["totalTimeEstimation"])
 
-                                # self.totalcost = total_cost
-                                self.nodes.append(DotNode(d['node'], plan_data, apply_data,cost_data,policy_data,fmt=fmt ))
+                                        for _, val in enumerate(self.time.resource_time_info[i]["resources"]):  
+                                            data = val["name"]
+                                            if data == res.split(".")[0]:
+                                                val["TimeEstimation"] = str(val["TimeEstimation"])
+                                                time_data =  val
+                                                break
+                                self.nodes.append(DotNode(d['node'], plan_data, apply_data,cost_data,policy_data,time_data,fmt=fmt ))
                         
         # terraform graph output doesn't always make explicit node declarations;
         # sometimes they're a side-effect of edge definitions. Capture them.
@@ -150,14 +159,16 @@ class DotGraph(Graph):
                 apply_data = {}
                 policy_data = {}
                 cost_data = {}
-                self.nodes.append(DotNode(e.source, plan_data,apply_data,cost_data,policy_data))
+                time_data = {}
+                self.nodes.append(DotNode(e.source, plan_data,apply_data,cost_data,policy_data,time_data))
             
             if e.target not in [ n.label for n in self.nodes ]:
                 plan_data = {}
                 apply_data = {}
                 policy_data = {}
                 cost_data = {}
-                self.nodes.append(DotNode(e.target, plan_data,apply_data,cost_data,policy_data))
+                time_data = {}
+                self.nodes.append(DotNode(e.target, plan_data,apply_data,cost_data,policy_data,time_data))
         
         self.stack('var')
         self.stack('output')
@@ -187,14 +198,14 @@ class DotGraph(Graph):
         'returns a dot/graphviz representation of the graph (a string)'
         
         if self.flag == "ext":
-            return self.dot_template_ext.render({ 'nodes': self.nodes, 'edges': self.edges, 'clusters' : self.clusters, 'EdgeType' : EdgeType,'totalcost': self.totalcost })
+            return self.dot_template_ext.render({ 'nodes': self.nodes, 'edges': self.edges, 'clusters' : self.clusters, 'EdgeType' : EdgeType,'totalcost': self.totalcost,'totaltime': self.totaltime })
         else :
             return self.dot_template.render({ 'nodes': self.nodes, 'edges': self.edges, 'clusters' : self.clusters, 'EdgeType' : EdgeType })
 
     def json(self):
         edges = [ dict(e) for e in self.edges ]
         nodes = [ dict(n) for n in self.nodes ]
-        return json.dumps({ 'nodes' : nodes, 'edges' : edges,'totalcost' : self.totalcost }, indent=4, sort_keys=True)
+        return json.dumps({ 'nodes' : nodes, 'edges' : edges,'totalcost' : self.totalcost,'totaltime': self.totaltime }, indent=4, sort_keys=True)
 
     #
     # A handful of graph manipulations. These are hampered by the decision 
@@ -415,7 +426,7 @@ class DotGraph(Graph):
     #
     # Formatting templates.
     #
-
+    
     dot_template_str_ext = """
     digraph {
     compound = "true"
@@ -438,33 +449,59 @@ class DotGraph(Graph):
                             </TABLE>>];
                         {% else %}
                             "{{node.label}}" [ shape=none, margin=0, id={{node.svg_id}} label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-                                <TR><TD colspan="3">{{node.type}}</TD></TR>
-                                <TR><TD colspan="3">{{node.resource_name}}</TD></TR>
-                                {% if node.plan.change %}
-                                    {% if node.plan.change.actions[0] == "create" %}
-                                        
-                                        <TR><TD>state</TD><TD>+</TD><TD>apply</TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "delete" and node.plan.change.actions[1] == "create"%}
-                                        <TR><TD>state</TD><TD>-/+</TD><TD></TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "delete"%}
-                                        <TR><TD>state</TD><TD>-</TD><TD">apply</TD></TR>
-                                    {% elif  node.plan.change.actions[0] == "update"%}
-                                        <TR><TD>state</TD><TD>#</TD><TD>apply</TD></TR>
-                                    {% else %}
-                                        <TR><TD>state</TD><TD></TD><TD>apply</TD></TR>
-                                    {% endif %}
+                            {% if "ibm_cos" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/COS_Icon.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% elif "ibm_kp" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/kp.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% elif "ibm_container" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/kubernetes.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% elif "ibm_is" in node.type %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/vpc.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/resource.png"/></TD><TD>{{ "%-20s"|format(node.type) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+
+                            {% endif %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/instance.png"/></TD><TD>{{ "%-20s"|format(node.resource_name) }}</TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/plan.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform plan") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/correct.png"/></TD></TR>
+                            {% if node.policy == "no policy available" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/policy.png"/></TD><TD>{{ "%-30s"|format("&#62;_controls verify") }} </TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/hourglass.png"/></TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/policy.png"/></TD><TD>{{ "%-30s"|format("&#62;_controls verify") }} </TD><TD fixedsize="true" width="50" height="20"></TD></TR>
+                            {% endif %}
+                            {% if node.cost == "no cost available" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/cost.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate cost") }}</TD><TD fixedsize="true" width="50" height="20">{{ "%-10s"|format("N/A") }}</TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/cost.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate cost") }}</TD><TD fixedsize="true" width="50" height="20">{{ "%-10s"|format(node.cost.lineitemtotal) }}</TD></TR>
+                            {% endif %}
+                            {% if node.time == "no time estimation available" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/time.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate time") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/hourglass.png"/></TD></TR>
+                            {% else %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/time.png"/></TD><TD>{{ "%-30s"|format("&#62;_estimate time") }}</TD><TD fixedsize="true" width="50" height="20">{{ "%-10s"|format(node.time.TimeEstimation) }}</TD></TR>
+                            {% endif %}
+                            {% if node.apply == "not yet applied" %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/hourglass.png"/></TD></TR>
+                            {% elif not node.apply %}
+                                <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/error.png"/></TD></TR>
+                            {% elif node.apply %}
+                                {% if node.apply.instances[0] == null %}
+                                    <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/error.png"/></TD></TR>
                                 {% else %}
-                                    <TR><TD>state</TD><TD></TD><TD></TD></TR>
+                                    <TR><TD fixedsize="true" width="20" height="20"><IMG SRC= "static/images/apply.png"/></TD><TD>{{ "%-30s"|format("&#62;_terraform apply") }}</TD><TD fixedsize="true" width="50" height="20"><IMG SRC= "static/images/correct.png"/></TD></TR>
                                 {% endif %}
-                            <TR><TD colspan="3">{{node.cost.lineitemtotal}}</TD></TR>
-                            <TR><TD colspan="3">controls</TD></TR></TABLE>>];
+                            {% endif %}
+                                </TABLE>>];
                         {% endif %}
                     {% else %}
-                       {% if totalcost != "" %}
+                       {% if totalcost != "" or totaltime != "" %}
                         "{{node.label}}" [ shape=none, margin=0, id={{node.svg_id}} label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
                             <TR><TD>{{node.label}}</TD></TR>
+                           {% if totalcost != "" %}
                             <TR><TD>{{totalcost}}</TD></TR>
-                            </TABLE>>];
+                           {% endif %}
+                           {% if totaltime != "" %}
+                            <TR><TD>{{totaltime}}</TD></TR>
+                           {% endif %}
+                        </TABLE>>];
                         {% else %}
                         "{{node.label}}" [{{node.fmt}}]
                         {% endif %}
@@ -502,6 +539,7 @@ class DotGraph(Graph):
         {% endfor %}
 }
 """
+
 
     dot_template_str = """
     digraph {
@@ -598,7 +636,7 @@ class Format:
 
 class DotNode(Node):
 
-    def __init__(self, label, plan_data,apply_data,cost_data,policy_data,fmt=None):
+    def __init__(self, label, plan_data,apply_data,cost_data,policy_data,time_data,fmt=None):
 
         self.label          = DotNode._label_fixup(label)
         self.fmt            = fmt if fmt else Format('') # graphviz formatting.
@@ -611,16 +649,17 @@ class DotNode(Node):
         self.module         = DotNode._module(self.label) # for module groupings. 'root' or 'module.foo.module.bar'
         self.cluster        = None # for stacked resources (usually var/output).
         self.collapsed      = False
-        self.plan          = plan_data
-        self.apply         = apply_data
-        self.cost          = cost_data
-        self.policy          = policy_data
+        self.plan           = plan_data
+        self.apply          = apply_data
+        self.cost           = cost_data
+        self.policy         = policy_data
+        self.time           = time_data
         self.fmt.add(id=self.svg_id, shape='box')
         
         self.modules = [ m for m in self.module.split('.') if m != 'module' ]
 
     def __iter__(self):
-        for key in {'label', 'simple_name', 'type', 'resource_name', 'group', 'svg_id', 'definition', 'cluster', 'module', 'modules', 'plan', 'apply','cost','policy'}:
+        for key in {'label', 'simple_name', 'type', 'resource_name', 'group', 'svg_id', 'definition', 'cluster', 'module', 'modules', 'plan', 'apply','cost','policy','time'}:
            yield (key, getattr(self, key))
 
     #

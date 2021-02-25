@@ -9,7 +9,13 @@ import re
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import url_for
+
 import jinja2
+
+from flask_images import Images,resized_img_src
+
+
 
 # 1st-party libraries
 from blastradius.handlers.dot import DotGraph, Format, DotNode
@@ -18,6 +24,9 @@ from blastradius.util import which
 from blastradius.graph import Node, Edge, Counter, Graph
 
 app = Flask(__name__)
+
+
+
 
 @app.route('/')
 def index():
@@ -35,25 +44,6 @@ def index():
 def graph_svg():
     Graph.reset_counters()
     dot = DotGraph('','', file_contents=run_tf_graph())
-
-    module_depth = request.args.get('module_depth', default=None, type=int)
-    refocus      = request.args.get('refocus', default=None, type=str)
-
-    if module_depth is not None and module_depth >= 0:
-        dot.set_module_depth(module_depth)
-
-    if refocus is not None:
-        node = dot.get_node_by_name(refocus)
-        if node:
-            dot.center(node)
-
-    return dot.svg()
-
-
-@app.route('/graphnew.svg')
-def graphnew_svg():
-    Graph.reset_counters()
-    dot = DotGraph('ext','',file_contents=run_tf_graph())
 
     module_depth = request.args.get('module_depth', default=None, type=int)
     refocus      = request.args.get('refocus', default=None, type=str)
@@ -105,7 +95,8 @@ def simple_graph():
 @app.route('/graph.json')
 def graph_json():
     Graph.reset_counters()
-    dot = DotGraph('','',file_contents=run_tf_graph())
+    # dot = DotGraph('','',file_contents=run_tf_graph()) we will create jsn with extended svg info
+    dot = DotGraph('','',file_contents=simple_graph())
     module_depth = request.args.get('module_depth', default=None, type=int)
     refocus      = request.args.get('refocus', default=None, type=str)
     if module_depth is not None and module_depth >= 0:

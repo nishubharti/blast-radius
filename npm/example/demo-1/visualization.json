@@ -2,111 +2,39 @@
     "edges": [
         {
             "edge_type": 1,
-            "source": "[root] ibm_is_instance.testacc_instance1",
-            "svg_id": "edge_0",
-            "target": "[root] provider.ibm"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] ibm_is_lb.lb",
-            "svg_id": "edge_1",
-            "target": "[root] provider.ibm"
-        },
-        {
-            "edge_type": 1,
             "source": "[root] ibm_is_subnet.testacc_subnet",
-            "svg_id": "edge_2",
+            "svg_id": "edge_0",
             "target": "[root] ibm_is_vpc.testacc_vpc"
         },
         {
             "edge_type": 1,
-            "source": "[root] ibm_is_volume.testacc_volume",
+            "source": "[root] root",
+            "svg_id": "edge_1",
+            "target": "[root] ibm_is_instance.testacc_instance1"
+        },
+        {
+            "edge_type": 1,
+            "source": "[root] root",
+            "svg_id": "edge_2",
+            "target": "[root] ibm_is_lb.lb"
+        },
+        {
+            "edge_type": 1,
+            "source": "[root] root",
             "svg_id": "edge_3",
-            "target": "[root] provider.ibm"
+            "target": "[root] ibm_is_subnet.testacc_subnet"
         },
         {
             "edge_type": 1,
-            "source": "[root] ibm_is_vpc.testacc_vpc",
+            "source": "[root] root",
             "svg_id": "edge_4",
-            "target": "[root] provider.ibm"
+            "target": "[root] ibm_is_volume.testacc_volume"
         },
         {
             "edge_type": 1,
-            "source": "[root] ibm_is_vpn_gateway.testacc_vpn_gateway",
+            "source": "[root] root",
             "svg_id": "edge_5",
-            "target": "[root] provider.ibm"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] meta.count-boundary (EachMode fixup)",
-            "svg_id": "edge_6",
-            "target": "[root] ibm_is_instance.testacc_instance1"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] meta.count-boundary (EachMode fixup)",
-            "svg_id": "edge_7",
-            "target": "[root] ibm_is_lb.lb"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] meta.count-boundary (EachMode fixup)",
-            "svg_id": "edge_8",
-            "target": "[root] ibm_is_subnet.testacc_subnet"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] meta.count-boundary (EachMode fixup)",
-            "svg_id": "edge_9",
-            "target": "[root] ibm_is_volume.testacc_volume"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] meta.count-boundary (EachMode fixup)",
-            "svg_id": "edge_10",
             "target": "[root] ibm_is_vpn_gateway.testacc_vpn_gateway"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] provider.ibm (close)",
-            "svg_id": "edge_11",
-            "target": "[root] ibm_is_instance.testacc_instance1"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] provider.ibm (close)",
-            "svg_id": "edge_12",
-            "target": "[root] ibm_is_lb.lb"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] provider.ibm (close)",
-            "svg_id": "edge_13",
-            "target": "[root] ibm_is_subnet.testacc_subnet"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] provider.ibm (close)",
-            "svg_id": "edge_14",
-            "target": "[root] ibm_is_volume.testacc_volume"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] provider.ibm (close)",
-            "svg_id": "edge_15",
-            "target": "[root] ibm_is_vpn_gateway.testacc_vpn_gateway"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] root",
-            "svg_id": "edge_16",
-            "target": "[root] meta.count-boundary (EachMode fixup)"
-        },
-        {
-            "edge_type": 1,
-            "source": "[root] root",
-            "svg_id": "edge_17",
-            "target": "[root] provider.ibm (close)"
         }
     ],
     "nodes": [
@@ -132,18 +60,36 @@
                 "title": "Virtual Server"
             },
             "definition": {
-                "image": "7eb4e35b-4257-56f8-d7da-326d85452591",
-                "keys": [
-                    "eac87f33-0c00-4da7-aa66-dc2d972148bd"
+                "image": [
+                    "7eb4e35b-4257-56f8-d7da-326d85452591"
                 ],
-                "name": "testinstance",
-                "primary_network_interface": {
-                    "port_speed": "1000",
-                    "subnet": "70be8eae-134c-436e-a86e-04849f84cb34"
-                },
-                "profile": "b-2x8",
-                "vpc": "01eda778-b822-43a2-816d-d30713df5e13",
-                "zone": "us-south-1"
+                "keys": [
+                    [
+                        "eac87f33-0c00-4da7-aa66-dc2d972148bd"
+                    ]
+                ],
+                "name": [
+                    "testinstance"
+                ],
+                "primary_network_interface": [
+                    {
+                        "port_speed": [
+                            "1000"
+                        ],
+                        "subnet": [
+                            "70be8eae-134c-436e-a86e-04849f84cb34"
+                        ]
+                    }
+                ],
+                "profile": [
+                    "b-2x8"
+                ],
+                "vpc": [
+                    "01eda778-b822-43a2-816d-d30713df5e13"
+                ],
+                "zone": [
+                    "us-south-1"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_is_instance.testacc_instance1",
@@ -239,6 +185,7 @@
             "resource_name": "testacc_instance1",
             "simple_name": "ibm_is_instance.testacc_instance1",
             "svg_id": "node_0",
+            "time": "no time estimation available",
             "type": "ibm_is_instance"
         },
         {
@@ -263,9 +210,13 @@
                 "title": "Load Balancer"
             },
             "definition": {
-                "name": "loadbalancer1",
+                "name": [
+                    "loadbalancer1"
+                ],
                 "subnets": [
-                    "04813493-15d6-4150-9948-6cc646cb67f2"
+                    [
+                        "04813493-15d6-4150-9948-6cc646cb67f2"
+                    ]
                 ]
             },
             "group": 20000,
@@ -324,6 +275,7 @@
             "resource_name": "lb",
             "simple_name": "ibm_is_lb.lb",
             "svg_id": "node_1",
+            "time": "no time estimation available",
             "type": "ibm_is_lb"
         },
         {
@@ -366,10 +318,18 @@
             "cluster": "root",
             "cost": "no cost available",
             "definition": {
-                "ipv4_cidr_block": "10.240.0.0/24",
-                "name": "testsubnet",
-                "vpc": "${ibm_is_vpc.testacc_vpc.id}",
-                "zone": "us-south-1"
+                "ipv4_cidr_block": [
+                    "10.240.0.0/24"
+                ],
+                "name": [
+                    "testsubnet"
+                ],
+                "vpc": [
+                    "${ibm_is_vpc.testacc_vpc.id}"
+                ],
+                "zone": [
+                    "us-south-1"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_is_subnet.testacc_subnet",
@@ -426,6 +386,7 @@
             "resource_name": "testacc_subnet",
             "simple_name": "ibm_is_subnet.testacc_subnet",
             "svg_id": "node_2",
+            "time": "no time estimation available",
             "type": "ibm_is_subnet"
         },
         {
@@ -474,9 +435,15 @@
                 "title": "Storage Volume"
             },
             "definition": {
-                "name": "testvolume",
-                "profile": "10iops-tier",
-                "zone": "us-south-1"
+                "name": [
+                    "testvolume"
+                ],
+                "profile": [
+                    "10iops-tier"
+                ],
+                "zone": [
+                    "us-south-1"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_is_volume.testacc_volume",
@@ -530,6 +497,7 @@
             "resource_name": "testacc_volume",
             "simple_name": "ibm_is_volume.testacc_volume",
             "svg_id": "node_3",
+            "time": "no time estimation available",
             "type": "ibm_is_volume"
         },
         {
@@ -593,7 +561,9 @@
                 "title": "VPC"
             },
             "definition": {
-                "name": "testvpc"
+                "name": [
+                    "testvpc"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_is_vpc.testacc_vpc",
@@ -649,6 +619,7 @@
             "resource_name": "testacc_vpc",
             "simple_name": "ibm_is_vpc.testacc_vpc",
             "svg_id": "node_4",
+            "time": "no time estimation available",
             "type": "ibm_is_vpc"
         },
         {
@@ -673,8 +644,12 @@
                 "title": "VPN Gateway"
             },
             "definition": {
-                "name": "test",
-                "subnet": "a4ce411d-e118-4802-95ad-525e6ea0cfc9"
+                "name": [
+                    "test"
+                ],
+                "subnet": [
+                    "a4ce411d-e118-4802-95ad-525e6ea0cfc9"
+                ]
             },
             "group": 20000,
             "label": "[root] ibm_is_vpn_gateway.testacc_vpn_gateway",
@@ -722,67 +697,8 @@
             "resource_name": "testacc_vpn_gateway",
             "simple_name": "ibm_is_vpn_gateway.testacc_vpn_gateway",
             "svg_id": "node_5",
+            "time": "no time estimation available",
             "type": "ibm_is_vpn_gateway"
-        },
-        {
-            "apply": {},
-            "cluster": "root",
-            "cost": "cost data to be displayed here",
-            "definition": {
-                "generation": 1,
-                "ibmcloud_api_key": "42fET57nnadurKXzXAedFLOhGqETfIGYxOmQXkFgkJV9"
-            },
-            "group": 20000,
-            "label": "[root] provider.ibm",
-            "module": "root",
-            "modules": [
-                "root"
-            ],
-            "plan": {},
-            "policy": "policy data to be displayed here",
-            "resource_name": "ibm",
-            "simple_name": "provider.ibm",
-            "svg_id": "node_6",
-            "type": "provider"
-        },
-        {
-            "apply": {},
-            "cluster": "root",
-            "cost": {},
-            "definition": "",
-            "group": 20000,
-            "label": "[root] meta.count-boundary (EachMode fixup)",
-            "module": "root",
-            "modules": [
-                "root"
-            ],
-            "plan": {},
-            "policy": {},
-            "resource_name": "count-boundary",
-            "simple_name": "meta.count-boundary (EachMode fixup)",
-            "svg_id": "node_7",
-            "type": "meta"
-        },
-        {
-            "apply": {},
-            "cluster": "root",
-            "cost": {},
-            "definition": {
-                "generation": 1,
-                "ibmcloud_api_key": "42fET57nnadurKXzXAedFLOhGqETfIGYxOmQXkFgkJV9"
-            },
-            "group": 20000,
-            "label": "[root] provider.ibm (close)",
-            "module": "root",
-            "modules": [
-                "root"
-            ],
-            "plan": {},
-            "policy": {},
-            "resource_name": "ibm",
-            "simple_name": "provider.ibm (close)",
-            "svg_id": "node_8",
-            "type": "provider"
         },
         {
             "apply": {},
@@ -799,9 +715,11 @@
             "policy": {},
             "resource_name": "",
             "simple_name": "root",
-            "svg_id": "node_9",
+            "svg_id": "node_6",
+            "time": {},
             "type": ""
         }
     ],
-    "totalcost": "150.07 USD"
+    "totalcost": "150.07 USD",
+    "totaltime": ""
 }
